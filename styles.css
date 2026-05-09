@@ -952,3 +952,37 @@ select:focus {
         align-items: flex-start;
     }
 }
+
+.time-control-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.small-btn {
+    padding: 7px 10px;
+    font-size: 0.78rem;
+}
+
+.export-btn {
+    background: rgba(16, 185, 129, 0.8);
+    border-color: rgba(255,255,255,0.7);
+}
+
+.export-btn:hover {
+    background: var(--success);
+}
+
+#exerciseMinutesInput {
+    width: 100%;
+}
+
+@media (max-width: 480px) {
+    .time-control-row {
+        width: 100%;
+    }
+
+    .time-control-row .time-picker {
+        flex: 1;
+    }
+}
