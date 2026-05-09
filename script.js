@@ -486,42 +486,99 @@
             stability: calculateStabilityScore()
         };
     }
-
-    async function exportGoalsToExcel() {
-        if (typeof ExcelJS === "undefined" || typeof saveAs === "undefined") {
-            alert("Excel export libraries are not loaded.");
-            return;
-        }
-
-        var workbook = new ExcelJS.Workbook();
-        var worksheet = workbook.addWorksheet("Goal History");
-
-        worksheet.columns = [
-            { header: "Completed Goal", key: "goal", width: 50 },
-            { header: "Completed Time", key: "time", width: 28 }
-        ];
-
-        worksheet.mergeCells("A1:B1");
-        worksheet.getCell("A1").value = "Progress Pond Goal Report";
-        worksheet.getCell("A1").font = { bold: true, size: 18 };
-        worksheet.getCell("A1").alignment = { horizontal: "center" };
-
-        var currentRow = 3;
-        var canvas = document.getElementById("healthChart");
-
-        if (canvas) {
-            var imageId = workbook.addImage({
-                base64: canvas.toDataURL("image/png"),
-                extension: "png"
-            });
-
-            worksheet.addImage(imageId, {
-                tl: { col: 0, row: currentRow },
-                ext: { width: 760, height: 360 }
-            });
-
-            currentRow += 22;
-        }
+         
+         async function exportGoalsToExcel() {
+             if (typeof ExcelJS === "undefined" || typeof saveAs === "undefined") {
+                 alert("Excel export libraries are not loaded.");
+                 return;
+             }
+         
+             var workbook = new ExcelJS.Workbook();
+             var worksheet = workbook.addWorksheet("Goal + Symptom History");
+         
+             worksheet.columns = [
+                 { header: "Completed Goal", key: "goal", width: 50 },
+                 { header: "Goal Time", key: "goalTime", width: 24 },
+                 { header: "Symptom", key: "symptom", width: 30 },
+                 { header: "Symptom Time", key: "symptomTime", width: 24 }
+             ];
+         
+             worksheet.mergeCells("A1:D1");
+             worksheet.getCell("A1").value = "Progress Pond Daily Report";
+             worksheet.getCell("A1").font = { bold: true, size: 18 };
+             worksheet.getCell("A1").alignment = { horizontal: "center" };
+         
+             var currentRow = 3;
+             var canvas = document.getElementById("healthChart");
+         
+             if (canvas) {
+                 var imageId = workbook.addImage({
+                     base64: canvas.toDataURL("image/png"),
+                     extension: "png"
+                 });
+         
+                 worksheet.addImage(imageId, {
+                     tl: { col: 0, row: currentRow },
+                     ext: { width: 900, height: 380 }
+                 });
+         
+                 currentRow += 24;
+             }
+         
+             worksheet.getCell("A" + currentRow).value = "Completed Goals";
+             worksheet.getCell("C" + currentRow).value = "Symptoms Logged";
+             worksheet.getRow(currentRow).font = { bold: true, size: 14 };
+         
+             currentRow++;
+         
+             worksheet.getCell("A" + currentRow).value = "Goal";
+             worksheet.getCell("B" + currentRow).value = "Completed Time";
+             worksheet.getCell("C" + currentRow).value = "Symptom";
+             worksheet.getCell("D" + currentRow).value = "Logged Time";
+             worksheet.getRow(currentRow).font = { bold: true };
+         
+             currentRow++;
+         
+             var goals = pondData.history.slice().reverse();
+             var symptoms = pondData.symptomLog.slice().reverse();
+         
+             var maxRows = Math.max(goals.length, symptoms.length, 1);
+         
+             for (var i = 0; i < maxRows; i++) {
+                 if (goals[i]) {
+                     worksheet.getCell("A" + currentRow).value = goals[i].text;
+                     worksheet.getCell("B" + currentRow).value = goals[i].fullDate;
+                 }
+         
+                 if (symptoms[i]) {
+                     worksheet.getCell("C" + currentRow).value = symptoms[i].symptom;
+                     worksheet.getCell("D" + currentRow).value = symptoms[i].fullDate;
+                 }
+         
+                 if (!goals[i] && !symptoms[i]) {
+                     worksheet.getCell("A" + currentRow).value = "No completed goals yet.";
+                     worksheet.getCell("C" + currentRow).value = "No symptoms logged yet.";
+                 }
+         
+                 currentRow++;
+             }
+         
+             worksheet.eachRow(function (row) {
+                 row.eachCell(function (cell) {
+                     cell.alignment = {
+                         vertical: "middle",
+                         wrapText: true
+                     };
+                 });
+             });
+         
+             var buffer = await workbook.xlsx.writeBuffer();
+         
+             saveAs(
+                 new Blob([buffer]),
+                 "Progress_Pond_Report_" + new Date().toISOString().slice(0, 10) + ".xlsx"
+             );
+         }
 
         worksheet.getCell("A" + currentRow).value = "Completed Goals";
         worksheet.getCell("A" + currentRow).font = { bold: true, size: 14 };
