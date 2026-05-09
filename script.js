@@ -1,6 +1,5 @@
 /* =========================================================
    PROGRESS POND V25
-   Expanded Health + Mood Analytics System
 ========================================================== */
 
 (function () {
@@ -91,8 +90,7 @@
         if (!saved) return;
 
         try {
-            var parsed = JSON.parse(saved);
-            Object.assign(pondData, parsed);
+            Object.assign(pondData, JSON.parse(saved));
         } catch (e) {
             console.error("Load Error:", e);
         }
@@ -549,15 +547,6 @@
                 });
         }
 
-        worksheet.eachRow(function (row) {
-            row.eachCell(function (cell) {
-                cell.alignment = {
-                    vertical: "middle",
-                    wrapText: true
-                };
-            });
-        });
-
         var buffer = await workbook.xlsx.writeBuffer();
 
         saveAs(
@@ -692,86 +681,52 @@
 
         var combined = [];
 
-        pondData.moodLog.forEach(function (m) {
-            combined.push({
-                id: m.id,
-                fullDate: m.fullDate,
-                display: (m.icon || "") + " " + m.val,
-                logType: "mood"
+        function pushItems(log, formatter, type) {
+            log.forEach(function (item) {
+                combined.push({
+                    id: item.id,
+                    fullDate: item.fullDate,
+                    display: formatter(item),
+                    logType: type
+                });
             });
-        });
+        }
 
-        pondData.sugarLog.forEach(function (s) {
-            combined.push({
-                id: s.id,
-                fullDate: s.fullDate,
-                display: "🩸 " + s.val + " mg/dL",
-                logType: "sugar"
-            });
-        });
+        pushItems(pondData.moodLog, function (m) {
+            return (m.icon || "") + " " + m.val;
+        }, "mood");
 
-        pondData.carbLog.forEach(function (c) {
-            combined.push({
-                id: c.id,
-                fullDate: c.fullDate,
-                display: "🥣 " + c.val + "g carbs",
-                logType: "carb"
-            });
-        });
+        pushItems(pondData.sugarLog, function (s) {
+            return "🩸 " + s.val + " mg/dL";
+        }, "sugar");
 
-        pondData.insulinLog.forEach(function (i) {
-            combined.push({
-                id: i.id,
-                fullDate: i.fullDate,
-                display: "💉 " + i.val + " units",
-                logType: "insulin"
-            });
-        });
+        pushItems(pondData.carbLog, function (c) {
+            return "🥣 " + c.val + "g carbs";
+        }, "carb");
 
-        pondData.waterLog.forEach(function (w) {
-            combined.push({
-                id: w.id,
-                fullDate: w.fullDate,
-                display: "💧 Water #" + w.val,
-                logType: "water"
-            });
-        });
+        pushItems(pondData.insulinLog, function (i) {
+            return "💉 " + i.val + " units";
+        }, "insulin");
 
-        pondData.stressLog.forEach(function (s) {
-            combined.push({
-                id: s.id,
-                fullDate: s.fullDate,
-                display: "🧠 Stress: " + s.val,
-                logType: "stress"
-            });
-        });
+        pushItems(pondData.waterLog, function (w) {
+            return "💧 Water #" + w.val;
+        }, "water");
 
-        pondData.energyLog.forEach(function (e) {
-            combined.push({
-                id: e.id,
-                fullDate: e.fullDate,
-                display: "⚡ Energy: " + e.val,
-                logType: "energy"
-            });
-        });
+        pushItems(pondData.stressLog, function (s) {
+            return "🧠 Stress: " + s.val;
+        }, "stress");
 
-        pondData.symptomLog.forEach(function (sym) {
-            combined.push({
-                id: sym.id,
-                fullDate: sym.fullDate,
-                display: "🩺 " + sym.symptom,
-                logType: "symptom"
-            });
-        });
+        pushItems(pondData.energyLog, function (e) {
+            return "⚡ Energy: " + e.val;
+        }, "energy");
 
-        pondData.exerciseLog.forEach(function (ex) {
-            combined.push({
-                id: ex.id,
-                fullDate: ex.fullDate,
-                display: "🏃 " + ex.exerciseType + " (" + ex.duration + " min, " + ex.intensity + ")",
-                logType: "exercise"
-            });
-        });
+        pushItems(pondData.symptomLog, function (sym) {
+            return "🩺 " + sym.symptom;
+        }, "symptom");
+
+        pushItems(pondData.exerciseLog, function (ex) {
+            return "🏃 " + ex.exerciseType + " (" + ex.duration + " min, " + ex.intensity + ")";
+        }, "exercise");
 
         combined.sort(function (a, b) {
             return b.id - a.id;
@@ -816,6 +771,7 @@
         var sortedInsulin = sortByLoggedTime(pondData.insulinLog);
         var sortedStress = sortByLoggedTime(pondData.stressLog);
         var sortedEnergy = sortByLoggedTime(pondData.energyLog);
+        var sortedExercise = sortByLoggedTime(pondData.exerciseLog);
 
         var allEntries = []
             .concat(sortedSugar)
@@ -825,6 +781,7 @@
             .concat(sortedInsulin)
             .concat(sortedStress)
             .concat(sortedEnergy)
+            .concat(sortedExercise)
             .sort(function (a, b) {
                 return timeToMinutes(a.fullDate) - timeToMinutes(b.fullDate);
             });
@@ -932,6 +889,21 @@
             });
         }
 
+        if (sortedExercise.length > 0) {
+            datasets.push({
+                label: "Exercise Minutes",
+                data: sortedExercise.map(function (ex) {
+                    return { x: getTime(ex.fullDate), y: ex.duration };
+                }),
+                borderColor: "#3b82f6",
+                backgroundColor: "#3b82f6",
+                tension: 0.3,
+                pointStyle: "circle",
+                pointRadius: 7,
+                yAxisID: "yExercise"
+            });
+        }
+
         if (pondChart) pondChart.destroy();
 
         pondChart = new Chart(ctx, {
@@ -967,6 +939,18 @@
                         title: {
                             display: true,
                             text: "Mood / Stress / Energy"
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    yExercise: {
+                        position: "right",
+                        min: 0,
+                        max: 120,
+                        title: {
+                            display: true,
+                            text: "Exercise Minutes"
                         },
                         grid: {
                             drawOnChartArea: false
