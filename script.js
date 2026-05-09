@@ -1,29 +1,23 @@
-```javascript
 /* =========================================================
    PROGRESS POND V25
    Expanded Health + Mood Analytics System
 ========================================================== */
 
 (function () {
-
     var pondData = {
         daily: [],
         history: [],
-
         moodLog: [],
         sugarLog: [],
         carbLog: [],
         waterLog: [],
-
         insulinLog: [],
         sleepLog: [],
         stressLog: [],
         energyLog: [],
         symptomLog: [],
         exerciseLog: [],
-
         analytics: [],
-
         waterCount: 0,
         streak: 0,
         lastStreakDate: null
@@ -84,19 +78,13 @@
         "🐸 🌈 Keep calm and leap on! 🌈 🐸"
     ];
 
-    window.onload = function () {
+    document.addEventListener("DOMContentLoaded", function () {
         loadStorage();
-
-        var motivationText = document.getElementById("motivationText");
-        if (motivationText) {
-            motivationText.textContent =
-                frogQuotes[Math.floor(Math.random() * frogQuotes.length)];
-        }
-
+        setMotivation();
         resetTimePicker();
         setupButtons();
         renderAll();
-    };
+    });
 
     function loadStorage() {
         var saved = localStorage.getItem("ProgressPond_V25");
@@ -104,9 +92,7 @@
 
         try {
             var parsed = JSON.parse(saved);
-            for (var key in parsed) {
-                pondData[key] = parsed[key];
-            }
+            Object.assign(pondData, parsed);
         } catch (e) {
             console.error("Load Error:", e);
         }
@@ -117,21 +103,23 @@
         renderAll();
     }
 
-    function setupButtons() {
-        function setClick(id, fn) {
-            var el = document.getElementById(id);
-            if (el) el.onclick = fn;
-        }
+    function setMotivation() {
+        var motivationText = document.getElementById("motivationText");
 
+        if (motivationText) {
+            motivationText.textContent =
+                frogQuotes[Math.floor(Math.random() * frogQuotes.length)];
+        }
+    }
+
+    function setupButtons() {
         setClick("addDailyBtn", addHop);
         setClick("addSugarBtn", addSugar);
         setClick("addCarbBtn", addCarb);
         setClick("addInsulinBtn", addInsulin);
-
         setClick("resetPondBtn", resetToday);
         setClick("clearHistoryBtn", clearEverything);
         setClick("clearWaterBtn", clearWater);
-
         setClick("resetTimeBtn", resetTimePicker);
         setClick("exportExcelBtn", exportGoalsToExcel);
 
@@ -146,8 +134,8 @@
         });
 
         document.querySelectorAll(".mood-btn").forEach(function (btn) {
-            btn.onclick = function () {
-                var mood = this.getAttribute("data-mood");
+            btn.addEventListener("click", function () {
+                var mood = btn.getAttribute("data-mood");
 
                 addLog("moodLog", {
                     type: "mood",
@@ -155,11 +143,11 @@
                     icon: moodEmojis[mood],
                     fullDate: currentFullDate(getSelectedTime())
                 });
-            };
+            });
         });
 
         document.querySelectorAll(".drop-btn").forEach(function (btn, index) {
-            btn.onclick = function () {
+            btn.addEventListener("click", function () {
                 var active = btn.classList.contains("active");
 
                 if (active) {
@@ -177,8 +165,13 @@
                         fullDate: currentFullDate(getSelectedTime())
                     });
                 }
-            };
+            });
         });
+    }
+
+    function setClick(id, fn) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener("click", fn);
     }
 
     function getSelectedTime() {
@@ -193,9 +186,9 @@
         var now = new Date();
 
         timeInput.value =
-            now.getHours().toString().padStart(2, "0") +
+            String(now.getHours()).padStart(2, "0") +
             ":" +
-            now.getMinutes().toString().padStart(2, "0");
+            String(now.getMinutes()).padStart(2, "0");
     }
 
     function currentFullDate(manualTime) {
@@ -219,12 +212,13 @@
         );
     }
 
-    function getTime(fd) {
-        return fd ? fd.split("@")[1].trim() : "00:00";
+    function getTime(fullDate) {
+        if (!fullDate || fullDate.indexOf("@") === -1) return "00:00";
+        return fullDate.split("@")[1].trim();
     }
 
-    function timeToMinutes(fd) {
-        var time = getTime(fd);
+    function timeToMinutes(fullDate) {
+        var time = getTime(fullDate);
         var parts = time.split(":");
 
         var hours = parseInt(parts[0], 10) || 0;
@@ -240,9 +234,20 @@
     }
 
     function addLog(logArray, payload) {
+        if (!pondData[logArray]) pondData[logArray] = [];
+
         pondData[logArray].push({
             id: Date.now(),
-            ...payload
+            type: payload.type || "",
+            val: payload.val,
+            icon: payload.icon,
+            color: payload.color,
+            score: payload.score,
+            symptom: payload.symptom,
+            exerciseType: payload.exerciseType,
+            duration: payload.duration,
+            intensity: payload.intensity,
+            fullDate: payload.fullDate
         });
 
         saveAndRefresh();
@@ -256,7 +261,7 @@
 
         pondData.daily.push({
             id: Date.now(),
-            text: input.value,
+            text: input.value.trim(),
             priority: priority ? priority.value : "Medium"
         });
 
@@ -370,16 +375,6 @@
         });
     };
 
-    window.addExercise = function (type, duration, intensity) {
-        addLog("exerciseLog", {
-            type: "exercise",
-            exerciseType: type,
-            duration: duration,
-            intensity: intensity,
-            fullDate: currentFullDate(getSelectedTime())
-        });
-    };
-
     window.addExerciseFromInput = function (type, intensity) {
         var input = document.getElementById("exerciseMinutesInput");
         var minutes = input ? parseInt(input.value, 10) : 0;
@@ -389,7 +384,14 @@
             return;
         }
 
-        window.addExercise(type, minutes, intensity);
+        addLog("exerciseLog", {
+            type: "exercise",
+            exerciseType: type,
+            duration: minutes,
+            intensity: intensity,
+            fullDate: currentFullDate(getSelectedTime())
+        });
+
         input.value = "";
     };
 
@@ -403,7 +405,6 @@
         if (!confirm("Clear today? This keeps your completed goal history.")) return;
 
         pondData.daily = [];
-
         pondData.moodLog = [];
         pondData.sugarLog = [];
         pondData.carbLog = [];
@@ -414,7 +415,6 @@
         pondData.energyLog = [];
         pondData.symptomLog = [];
         pondData.exerciseLog = [];
-
         pondData.waterCount = 0;
 
         resetTimePicker();
@@ -445,8 +445,8 @@
         };
 
         if (map[type]) {
-            pondData[map[type]] = pondData[map[type]].filter(function (i) {
-                return i.id !== id;
+            pondData[map[type]] = pondData[map[type]].filter(function (item) {
+                return item.id !== id;
             });
         }
 
@@ -483,8 +483,8 @@
 
         return {
             avg: Math.round(avg),
-            max: Math.max(...sugars),
-            min: Math.min(...sugars),
+            max: Math.max.apply(null, sugars),
+            min: Math.min.apply(null, sugars),
             stability: calculateStabilityScore()
         };
     }
@@ -509,7 +509,6 @@
         worksheet.getCell("A1").alignment = { horizontal: "center" };
 
         var currentRow = 3;
-
         var canvas = document.getElementById("healthChart");
 
         if (canvas) {
@@ -607,22 +606,20 @@
 
         var listHtml = "";
 
-        for (var i = 0; i < pondData.daily.length; i++) {
-            var g = pondData.daily[i];
-
-            listHtml += `
-                <li class="hop-item">
-                    <input type="checkbox" onchange="toggleHop(${g.id})">
-
-                    <span style="flex:1">
-                        ${g.text}
-                        <small>(${g.priority})</small>
-                    </span>
-
-                    <button onclick="deleteHop(${g.id})">×</button>
-                </li>
-            `;
-        }
+        pondData.daily.forEach(function (g) {
+            listHtml +=
+                '<li class="hop-item">' +
+                '<input type="checkbox" onchange="toggleHop(' + g.id + ')">' +
+                '<span style="flex:1">' +
+                g.text +
+                " <small>(" +
+                g.priority +
+                ")</small></span>" +
+                '<button onclick="deleteHop(' +
+                g.id +
+                ')">×</button>' +
+                "</li>";
+        });
 
         dailyList.innerHTML = listHtml || "No active hops...";
 
@@ -643,114 +640,165 @@
         if (!panel) return;
 
         if (!stats) {
-            panel.innerHTML = `
-                <div>📊 Avg: --</div>
-                <div>⬆️ High: --</div>
-                <div>⬇️ Low: --</div>
-                <div>🌊 Stability: --</div>
-            `;
+            panel.innerHTML =
+                "<div>📊 Avg: --</div>" +
+                "<div>⬆️ High: --</div>" +
+                "<div>⬇️ Low: --</div>" +
+                "<div>🌊 Stability: --</div>";
             return;
         }
 
-        panel.innerHTML = `
-            <div>📊 Avg: ${stats.avg}</div>
-            <div>⬆️ High: ${stats.max}</div>
-            <div>⬇️ Low: ${stats.min}</div>
-            <div>🌊 Stability: ${stats.stability}%</div>
-        `;
+        panel.innerHTML =
+            "<div>📊 Avg: " +
+            stats.avg +
+            "</div>" +
+            "<div>⬆️ High: " +
+            stats.max +
+            "</div>" +
+            "<div>⬇️ Low: " +
+            stats.min +
+            "</div>" +
+            "<div>🌊 Stability: " +
+            stats.stability +
+            "%</div>";
     }
 
     function renderHistory() {
         var hopHistory = document.getElementById("dailyHistoryList");
 
         if (hopHistory) {
-            hopHistory.innerHTML =
-                pondData.history
-                    .slice()
-                    .reverse()
-                    .slice(0, 40)
-                    .map(function (h) {
-                        return `
-                            <div class="history-item">
-                                <div>
-                                    🌿 ${h.text}
-                                    <small>${h.fullDate}</small>
-                                </div>
+            var hopHtml = "";
 
-                                <button onclick="deleteLogItem('hop', ${h.id})">
-                                    ×
-                                </button>
-                            </div>
-                        `;
-                    })
-                    .join("") || "No completed goals yet.";
+            pondData.history
+                .slice()
+                .reverse()
+                .slice(0, 40)
+                .forEach(function (h) {
+                    hopHtml +=
+                        '<div class="history-item">' +
+                        "<div>🌿 " +
+                        h.text +
+                        "<small>" +
+                        h.fullDate +
+                        "</small></div>" +
+                        '<button onclick="deleteLogItem(\'hop\', ' +
+                        h.id +
+                        ')">×</button>' +
+                        "</div>";
+                });
+
+            hopHistory.innerHTML = hopHtml || "No completed goals yet.";
         }
 
-        var combined = [
-            ...pondData.moodLog.map(function (m) {
-                return { ...m, display: `${m.icon} ${m.val}`, logType: "mood" };
-            }),
+        var combined = [];
 
-            ...pondData.sugarLog.map(function (s) {
-                return { ...s, display: `🩸 ${s.val} mg/dL`, logType: "sugar" };
-            }),
+        pondData.moodLog.forEach(function (m) {
+            combined.push({
+                id: m.id,
+                fullDate: m.fullDate,
+                display: (m.icon || "") + " " + m.val,
+                logType: "mood"
+            });
+        });
 
-            ...pondData.carbLog.map(function (c) {
-                return { ...c, display: `🥣 ${c.val}g carbs`, logType: "carb" };
-            }),
+        pondData.sugarLog.forEach(function (s) {
+            combined.push({
+                id: s.id,
+                fullDate: s.fullDate,
+                display: "🩸 " + s.val + " mg/dL",
+                logType: "sugar"
+            });
+        });
 
-            ...pondData.insulinLog.map(function (i) {
-                return { ...i, display: `💉 ${i.val} units`, logType: "insulin" };
-            }),
+        pondData.carbLog.forEach(function (c) {
+            combined.push({
+                id: c.id,
+                fullDate: c.fullDate,
+                display: "🥣 " + c.val + "g carbs",
+                logType: "carb"
+            });
+        });
 
-            ...pondData.waterLog.map(function (w) {
-                return { ...w, display: `💧 Water #${w.val}`, logType: "water" };
-            }),
+        pondData.insulinLog.forEach(function (i) {
+            combined.push({
+                id: i.id,
+                fullDate: i.fullDate,
+                display: "💉 " + i.val + " units",
+                logType: "insulin"
+            });
+        });
 
-            ...pondData.stressLog.map(function (s) {
-                return { ...s, display: `🧠 Stress: ${s.val}`, logType: "stress" };
-            }),
+        pondData.waterLog.forEach(function (w) {
+            combined.push({
+                id: w.id,
+                fullDate: w.fullDate,
+                display: "💧 Water #" + w.val,
+                logType: "water"
+            });
+        });
 
-            ...pondData.energyLog.map(function (e) {
-                return { ...e, display: `⚡ Energy: ${e.val}`, logType: "energy" };
-            }),
+        pondData.stressLog.forEach(function (s) {
+            combined.push({
+                id: s.id,
+                fullDate: s.fullDate,
+                display: "🧠 Stress: " + s.val,
+                logType: "stress"
+            });
+        });
 
-            ...pondData.symptomLog.map(function (sym) {
-                return { ...sym, display: `🩺 ${sym.symptom}`, logType: "symptom" };
-            }),
+        pondData.energyLog.forEach(function (e) {
+            combined.push({
+                id: e.id,
+                fullDate: e.fullDate,
+                display: "⚡ Energy: " + e.val,
+                logType: "energy"
+            });
+        });
 
-            ...pondData.exerciseLog.map(function (ex) {
-                return {
-                    ...ex,
-                    display: `🏃 ${ex.exerciseType} (${ex.duration} min, ${ex.intensity})`,
-                    logType: "exercise"
-                };
-            })
-        ].sort(function (a, b) {
+        pondData.symptomLog.forEach(function (sym) {
+            combined.push({
+                id: sym.id,
+                fullDate: sym.fullDate,
+                display: "🩺 " + sym.symptom,
+                logType: "symptom"
+            });
+        });
+
+        pondData.exerciseLog.forEach(function (ex) {
+            combined.push({
+                id: ex.id,
+                fullDate: ex.fullDate,
+                display: "🏃 " + ex.exerciseType + " (" + ex.duration + " min, " + ex.intensity + ")",
+                logType: "exercise"
+            });
+        });
+
+        combined.sort(function (a, b) {
             return b.id - a.id;
         });
 
         var tracker = document.getElementById("moodHistoryList");
 
         if (tracker) {
-            tracker.innerHTML =
-                combined
-                    .slice(0, 50)
-                    .map(function (item) {
-                        return `
-                            <div class="history-item">
-                                <div>
-                                    ${item.display}
-                                    <small>${item.fullDate}</small>
-                                </div>
+            var trackerHtml = "";
 
-                                <button onclick="deleteLogItem('${item.logType}', ${item.id})">
-                                    ×
-                                </button>
-                            </div>
-                        `;
-                    })
-                    .join("") || "No tracker history yet.";
+            combined.slice(0, 50).forEach(function (item) {
+                trackerHtml +=
+                    '<div class="history-item">' +
+                    "<div>" +
+                    item.display +
+                    "<small>" +
+                    item.fullDate +
+                    "</small></div>" +
+                    '<button onclick="deleteLogItem(\'' +
+                    item.logType +
+                    "', " +
+                    item.id +
+                    ')">×</button>' +
+                    "</div>";
+            });
+
+            tracker.innerHTML = trackerHtml || "No tracker history yet.";
         }
     }
 
@@ -769,25 +817,24 @@
         var sortedStress = sortByLoggedTime(pondData.stressLog);
         var sortedEnergy = sortByLoggedTime(pondData.energyLog);
 
-        var allEntries = [
-            ...sortedSugar,
-            ...sortedMood,
-            ...sortedCarbs,
-            ...sortedWater,
-            ...sortedInsulin,
-            ...sortedStress,
-            ...sortedEnergy
-        ].sort(function (a, b) {
-            return timeToMinutes(a.fullDate) - timeToMinutes(b.fullDate);
-        });
+        var allEntries = []
+            .concat(sortedSugar)
+            .concat(sortedMood)
+            .concat(sortedCarbs)
+            .concat(sortedWater)
+            .concat(sortedInsulin)
+            .concat(sortedStress)
+            .concat(sortedEnergy)
+            .sort(function (a, b) {
+                return timeToMinutes(a.fullDate) - timeToMinutes(b.fullDate);
+            });
 
-        var labels = [
-            ...new Set(
-                allEntries.map(function (e) {
-                    return getTime(e.fullDate);
-                })
-            )
-        ];
+        var labels = [];
+
+        allEntries.forEach(function (entry) {
+            var t = getTime(entry.fullDate);
+            if (labels.indexOf(t) === -1) labels.push(t);
+        });
 
         var datasets = [];
 
@@ -895,18 +942,15 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-
                 interaction: {
                     mode: "nearest",
                     intersect: false
                 },
-
                 scales: {
                     x: {
                         type: "category",
                         labels: labels
                     },
-
                     y: {
                         position: "left",
                         min: 0,
@@ -916,7 +960,6 @@
                             text: "Stats"
                         }
                     },
-
                     yMood: {
                         position: "right",
                         min: 1,
@@ -930,7 +973,6 @@
                         }
                     }
                 },
-
                 plugins: {
                     legend: {
                         display: true,
@@ -941,7 +983,6 @@
                             }
                         }
                     },
-
                     tooltip: {
                         enabled: true
                     }
@@ -949,6 +990,5 @@
             }
         });
     }
-
 })();
 ```
