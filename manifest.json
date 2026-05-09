@@ -7,12 +7,12 @@
   "theme_color": "#9ed5a0",
   "icons": [
     {
-      "src": "1024.png",
+      "src": "frogicon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "1024.png",
+      "src": "frogicon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
