@@ -1,826 +1,133 @@
-```css id="6wojqs"
-:root {
+Yes — add these updates to the **bottom of your current CSS**. They match the V25 HTML classes and polish the achievement bar/history styling. 
 
-    --frog: #9ed5a0;
-    --dark-frog: #67a36a;
-
-    --pink: #ffc2d1;
-    --soft-pink: #ffe5ec;
-
-    --bg: #ffe5ec;
-    --soft: #fffcfd;
-
-    --txt: #5d4a4a;
-
-    --water-blue: #e0f2fe;
-    --water-border: #7dd3fc;
-
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    --success: #10b981;
-
-    --purple: #8b5cf6;
-    --stress: #ff00aa;
-    --energy: #00ff99;
-
-    --shadow: rgba(0,0,0,0.08);
-
-}
-
+```css
 /* ===================================================== */
-/* GLOBAL */
+/* V25 ADDITIONS */
 /* ===================================================== */
 
-* {
-    box-sizing: border-box;
-}
-
-body {
-
-    font-family: 'Segoe UI', Arial, sans-serif;
-
-    background:
-        linear-gradient(
-            180deg,
-            #ffe5ec 0%,
-            #fff7fa 100%
-        );
-
-    color: var(--txt);
-
-    margin: 0;
-
-    padding-bottom: 120px;
-
-    overflow-x: hidden;
-
-    min-height: 100vh;
-}
-
-/* ===================================================== */
-/* CONTAINER */
-/* ===================================================== */
-
-.container {
-
-    width: 95%;
-
-    max-width: 500px;
-
-    margin: 0 auto;
-
-    padding: 18px 10px 30px;
-}
-
-/* ===================================================== */
-/* HEADER */
-/* ===================================================== */
-
-.header {
-
-    text-align: center;
-
-    margin-bottom: 20px;
-}
-
-.header h1 {
-
-    margin-bottom: 5px;
-
-    color: var(--dark-frog);
-
-    font-size: 2rem;
-
-    text-shadow:
-        2px 2px 0 white;
-}
-
-.date-display {
-
-    color: var(--dark-frog);
-
-    font-weight: bold;
-
-    font-size: 0.9rem;
-}
-
-/* ===================================================== */
-/* MOTIVATION BAR */
-/* ===================================================== */
-
-.motivation-bar {
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--pink),
-            #ffb3c6
-        );
-
-    color: white;
-
-    padding: 12px 45px;
-
-    text-align: center;
-
-    position: sticky;
-
-    top: 0;
-
-    z-index: 1100;
-
-    font-weight: bold;
-
-    font-size: 0.9rem;
-
-    border-bottom: 3px dashed white;
-
-    backdrop-filter: blur(5px);
-}
-
-.btn-close-banner {
-
-    position: absolute;
-
-    right: 10px;
-
-    top: 50%;
-
-    transform: translateY(-50%);
-
-    background: none;
-
-    border: none;
-
-    color: white;
-
-    font-size: 1.4rem;
-
-    cursor: pointer;
-}
-
-/* ===================================================== */
-/* CARDS */
-/* ===================================================== */
-
-.pond-card {
-
-    background: rgba(255,255,255,0.92);
-
-    backdrop-filter: blur(10px);
-
-    border-radius: 22px;
-
-    border: 3px solid var(--frog);
-
-    padding: 16px;
-
-    margin-bottom: 20px;
-
-    box-shadow:
-        6px 6px 0 var(--pink),
-        0 4px 18px var(--shadow);
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.pond-card:hover {
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        8px 8px 0 var(--pink),
-        0 6px 20px var(--shadow);
-}
-
-.trend-card {
-
-    border-color: var(--dark-frog);
-
-    box-shadow:
-        6px 6px 0 var(--water-border),
-        0 4px 18px var(--shadow);
-}
-
-.card-header {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    gap: 10px;
-
-    margin-bottom: 10px;
-}
-
-.card-header h2 {
-
-    margin: 0;
-
-    font-size: 1.2rem;
-
-    color: var(--dark-frog);
-}
-
-/* ===================================================== */
-/* ANALYTICS PANEL */
-/* ===================================================== */
-
-.analytics-panel {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 4px;
-
-    font-size: 0.72rem;
-
-    background: rgba(255,255,255,0.7);
-
-    border: 2px solid var(--frog);
-
-    border-radius: 12px;
-
-    padding: 8px 10px;
-
-    min-width: 110px;
-
-    text-align: right;
-}
-
-/* ===================================================== */
-/* CHART */
-/* ===================================================== */
-
-.chart-container {
-
-    position: relative;
-
-    height: 300px;
-
-    width: 100%;
-
-    margin-top: 10px;
-}
-
-/* ===================================================== */
-/* BUTTON GRIDS */
-/* ===================================================== */
-
-.mood-options {
-
-    display: grid;
-
-    grid-template-columns: repeat(5, 1fr);
-
-    gap: 10px;
-}
-
-.button-grid {
-
-    display: grid;
-
-    grid-template-columns: repeat(2, 1fr);
-
-    gap: 8px;
-
-    margin-top: 10px;
-}
-
-.metric-group {
-
-    margin-bottom: 18px;
-}
-
-.metric-group h3 {
-
-    margin: 0 0 8px 0;
-
-    font-size: 0.95rem;
-
-    color: var(--dark-frog);
-}
-
-/* ===================================================== */
-/* BUTTONS */
-/* ===================================================== */
-
-.mood-btn,
-.drop-btn,
-.mini-btn {
-
-    background: white;
-
-    border: 2px solid var(--frog);
-
-    border-radius: 16px;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-
-    font-weight: bold;
-
-    color: var(--txt);
-}
-
-.mood-btn {
-
-    width: 48px;
-
-    height: 48px;
-
-    border-radius: 50%;
-
-    font-size: 1.3rem;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-}
-
-.mood-btn:hover,
-.drop-btn:hover,
-.mini-btn:hover {
-
-    transform: scale(1.05);
-
-    background: #f6fff7;
-}
-
-.mini-btn {
-
-    padding: 10px;
-
+.helper-text {
+    margin: 6px 0 0 0;
     font-size: 0.78rem;
+    line-height: 1.4;
+    color: rgba(93, 74, 74, 0.75);
 }
 
-/* ===================================================== */
-/* HYDRATION */
-/* ===================================================== */
-
-.droplet-container {
-
-    display: grid;
-
-    grid-template-columns: repeat(4, 1fr);
-
-    gap: 12px;
-}
-
-.drop-btn {
-
-    width: 50px;
-
-    height: 50px;
-
-    font-size: 1.3rem;
-
-    border-radius: 50%;
-
-    filter: grayscale(100%) opacity(0.3);
-
+.inline-controls {
     display: flex;
-
     align-items: center;
-
-    justify-content: center;
-}
-
-.drop-btn.active {
-
-    filter: grayscale(0%) opacity(1);
-
-    background: var(--water-blue);
-
-    border-color: var(--water-border);
-
-    transform: scale(1.08);
-}
-
-/* ===================================================== */
-/* INPUTS */
-/* ===================================================== */
-
-input,
-select {
-
-    padding: 10px 12px;
-
-    border: 2px solid var(--frog);
-
-    border-radius: 12px;
-
-    outline: none;
-
-    font-size: 0.9rem;
-
-    background: white;
-
-    color: var(--txt);
-
-    transition: 0.2s ease;
-}
-
-input:focus,
-select:focus {
-
-    border-color: var(--dark-frog);
-
-    box-shadow: 0 0 0 4px rgba(158,213,160,0.2);
-}
-
-.input-row {
-
-    display: flex;
-
-    gap: 8px;
-
-    margin: 10px 0;
-}
-
-.input-row input {
-
-    flex: 1;
-}
-
-.input-stack {
-
-    display: flex;
-
-    flex-direction: column;
-
     gap: 8px;
 }
 
-.priority-select {
+/* Footer utility button variants */
 
-    min-width: 95px;
-}
-
-.time-picker {
-
-    padding: 6px 8px;
-
-    border-color: var(--pink);
-
-    font-size: 0.8rem;
-}
-
-/* ===================================================== */
-/* PRIMARY BUTTONS */
-/* ===================================================== */
-
-.btn-pond {
-
-    background:
-        linear-gradient(
-            180deg,
-            var(--frog),
-            var(--dark-frog)
-        );
-
+.pink-util {
+    background: var(--pink);
+    border: 1px solid white;
     color: white;
-
-    border: none;
-
-    border-radius: 12px;
-
-    padding: 10px 14px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-
-    box-shadow:
-        0 3px 10px rgba(0,0,0,0.08);
 }
 
-.btn-pond:hover {
-
-    transform: translateY(-1px);
-
-    filter: brightness(1.05);
+.pink-util:hover {
+    background: #ffadc3;
 }
 
-.full-width {
-
-    width: 100%;
+.danger-util {
+    background: rgba(239, 68, 68, 0.75);
+    border-color: rgba(255,255,255,0.65);
 }
 
-/* ===================================================== */
-/* PROGRESS BAR */
-/* ===================================================== */
-
-.progress-wrap {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 8px;
-
-    flex: 1;
-
-    margin-left: 15px;
+.danger-util:hover {
+    background: var(--danger);
 }
 
-.progress-bar {
-
-    flex: 1;
-
-    height: 12px;
-
-    background: #e0f2e1;
-
-    border-radius: 12px;
-
-    overflow: hidden;
-
-    border: 1px solid var(--frog);
-}
-
-.progress-fill {
-
-    height: 100%;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--frog),
-            var(--dark-frog)
-        );
-
-    width: 0%;
-
-    transition: 0.5s ease;
-}
-
-/* ===================================================== */
-/* HOPS */
-/* ===================================================== */
-
-.hops-list {
-
-    list-style: none;
-
-    padding: 0;
-
-    margin: 15px 0 0 0;
-}
-
-/* ===================================================== */
-/* FOOTER */
-/* ===================================================== */
+/* Achievement bar upgrades */
 
 .achievement-bar {
-
-    position: fixed;
-
-    bottom: 0;
-
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    width: 100%;
-
-    max-width: 540px;
-
-    background:
-        linear-gradient(
-            180deg,
-            var(--dark-frog),
-            #4d7d50
-        );
-
-    color: white;
-
-    border-radius: 24px 24px 0 0;
-
-    z-index: 1200;
-
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    box-shadow:
-        0 -6px 20px rgba(0,0,0,0.15);
-}
-
-.achievement-bar.collapsed {
-
-    transform:
-        translate(-50%, calc(100% - 52px));
-}
-
-.bar-header {
-
-    height: 52px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    cursor: pointer;
-}
-
-.centered-controls {
-
-    display: flex;
-
-    gap: 6px;
-
-    flex-wrap: wrap;
-
-    justify-content: center;
+    max-width: 560px;
 }
 
 .achievement-content {
+    padding-bottom: 24px;
+}
 
-    padding: 15px;
-
-    max-height: 55vh;
-
-    overflow-y: auto;
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 15px;
+.achieve-col {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 18px;
+    padding: 12px;
 }
 
 .achieve-col h4 {
-
-    font-size: 0.75rem;
-
-    text-transform: uppercase;
-
-    margin-bottom: 8px;
-
-    opacity: 0.85;
-
-    border-bottom:
-        1px solid rgba(255,255,255,0.25);
-
-    padding-bottom: 4px;
-
-    letter-spacing: 0.08em;
+    margin-top: 0;
 }
 
-.history-list div {
-
-    font-size: 0.8rem;
-
-    padding: 8px 0;
-
-    border-bottom:
-        1px solid rgba(255,255,255,0.08);
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    gap: 8px;
-}
-
-/* ===================================================== */
-/* UTILITY BUTTONS */
-/* ===================================================== */
-
-.btn-util {
-
-    background: rgba(255,255,255,0.16);
-
-    border: 1px solid rgba(255,255,255,0.4);
-
-    color: white;
-
-    padding: 6px 10px;
-
+.history-item {
+    background: rgba(255,255,255,0.08);
     border-radius: 12px;
+    padding: 9px 10px !important;
+    margin-bottom: 8px;
+    border-bottom: none !important;
+}
 
-    font-size: 0.72rem;
+.history-item small {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.68rem;
+    opacity: 0.72;
+}
 
+.history-item button {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+    border-radius: 999px;
+    width: 24px;
+    height: 24px;
     cursor: pointer;
-
-    transition: 0.2s ease;
-}
-
-.btn-util:hover {
-
-    background: rgba(255,255,255,0.24);
-}
-
-.export-btn {
-
-    background: rgba(255,255,255,0.25);
-}
-
-/* ===================================================== */
-/* BADGES */
-/* ===================================================== */
-
-.count-badge {
-
-    background: var(--water-blue);
-
-    color: #0369a1;
-
-    padding: 4px 10px;
-
-    border-radius: 999px;
-
-    font-size: 0.8rem;
-
     font-weight: bold;
-
-    border:
-        1px solid var(--water-border);
+    flex-shrink: 0;
 }
 
-/* ===================================================== */
-/* SCROLLBAR */
-/* ===================================================== */
-
-::-webkit-scrollbar {
-
-    width: 8px;
+.history-item button:hover {
+    background: rgba(239,68,68,0.85);
 }
 
-::-webkit-scrollbar-thumb {
-
-    background: rgba(0,0,0,0.12);
-
-    border-radius: 999px;
-}
-
-/* ===================================================== */
-/* MOBILE */
-/* ===================================================== */
+/* Better footer controls on tiny screens */
 
 @media (max-width: 480px) {
-
-    .container {
-
-        padding: 12px 6px 25px;
-    }
-
-    .mood-options {
-
-        grid-template-columns: repeat(5, 1fr);
-
-        gap: 8px;
-    }
-
-    .button-grid {
-
-        grid-template-columns: 1fr;
-    }
-
-    .card-header {
-
-        flex-direction: column;
-
-        align-items: flex-start;
-    }
-
-    .analytics-panel {
-
+    .inline-controls {
         width: 100%;
+        justify-content: space-between;
+    }
 
-        text-align: left;
+    .achievement-bar {
+        max-width: 100%;
+        border-radius: 22px 22px 0 0;
+    }
+
+    .bar-header {
+        height: auto;
+        min-height: 56px;
+        padding: 8px;
+    }
+
+    .achievement-bar.collapsed {
+        transform: translate(-50%, calc(100% - 56px));
     }
 
     .centered-controls {
-
-        gap: 4px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        padding: 0 8px;
     }
 
     .btn-util {
-
-        font-size: 0.65rem;
-
-        padding: 5px 7px;
+        width: 100%;
+        min-height: 34px;
     }
 
-    .mood-btn {
-
-        width: 44px;
-
-        height: 44px;
+    .history-item {
+        align-items: flex-start;
     }
 }
 ```
