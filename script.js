@@ -1,3 +1,4 @@
+```javascript
 /* =========================================================
    PROGRESS POND V25
    Expanded Health + Mood Analytics System
@@ -31,32 +32,32 @@
     var pondChart = null;
 
     var moodScores = {
-        "Manic": 10,
-        "Happy": 9,
-        "Focused": 8,
-        "Calm": 7,
-        "Tired": 6,
-        "Confused": 5,
-        "Grumpy": 4,
-        "Angry": 3,
-        "Sad": 2,
-        "Crying": 1
+        Manic: 10,
+        Happy: 9,
+        Focused: 8,
+        Calm: 7,
+        Tired: 6,
+        Confused: 5,
+        Grumpy: 4,
+        Angry: 3,
+        Sad: 2,
+        Crying: 1
     };
 
     var energyScores = {
-        "Exhausted": 1,
-        "Low": 3,
-        "Okay": 5,
-        "Good": 7,
-        "Energetic": 10
+        Exhausted: 1,
+        Low: 3,
+        Okay: 5,
+        Good: 7,
+        Energetic: 10
     };
 
     var stressScores = {
-        "Calm": 1,
-        "Mild": 3,
-        "Moderate": 5,
-        "High": 7,
-        "Extreme": 10
+        Calm: 1,
+        Mild: 3,
+        Moderate: 5,
+        High: 7,
+        Extreme: 10
     };
 
     var moodEmojis = {
@@ -86,7 +87,7 @@
     window.onload = function () {
         loadStorage();
 
-        var motivationText = document.getElementById('motivationText');
+        var motivationText = document.getElementById("motivationText");
         if (motivationText) {
             motivationText.textContent =
                 frogQuotes[Math.floor(Math.random() * frogQuotes.length)];
@@ -98,28 +99,21 @@
     };
 
     function loadStorage() {
-        var saved = localStorage.getItem('ProgressPond_V25');
-
+        var saved = localStorage.getItem("ProgressPond_V25");
         if (!saved) return;
 
         try {
             var parsed = JSON.parse(saved);
-
             for (var key in parsed) {
                 pondData[key] = parsed[key];
             }
-
         } catch (e) {
             console.error("Load Error:", e);
         }
     }
 
     function saveAndRefresh() {
-        localStorage.setItem(
-            'ProgressPond_V25',
-            JSON.stringify(pondData)
-        );
-
+        localStorage.setItem("ProgressPond_V25", JSON.stringify(pondData));
         renderAll();
     }
 
@@ -129,34 +123,34 @@
             if (el) el.onclick = fn;
         }
 
-        setClick('addDailyBtn', addHop);
-        setClick('addSugarBtn', addSugar);
-        setClick('addCarbBtn', addCarb);
-        setClick('addInsulinBtn', addInsulin);
+        setClick("addDailyBtn", addHop);
+        setClick("addSugarBtn", addSugar);
+        setClick("addCarbBtn", addCarb);
+        setClick("addInsulinBtn", addInsulin);
 
-        setClick('resetPondBtn', resetToday);
-        setClick('clearHistoryBtn', clearEverything);
-        setClick('clearWaterBtn', clearWater);
+        setClick("resetPondBtn", resetToday);
+        setClick("clearHistoryBtn", clearEverything);
+        setClick("clearWaterBtn", clearWater);
 
-        setClick('resetTimeBtn', resetTimePicker);
-        setClick('exportExcelBtn', exportGoalsToExcel);
+        setClick("resetTimeBtn", resetTimePicker);
+        setClick("exportExcelBtn", exportGoalsToExcel);
 
-        setClick('historyToggle', function () {
-            var footer = document.getElementById('historyFooter');
-            if (footer) footer.classList.toggle('collapsed');
+        setClick("historyToggle", function () {
+            var footer = document.getElementById("historyFooter");
+            if (footer) footer.classList.toggle("collapsed");
         });
 
-        setClick('bannerClose', function () {
-            var bar = document.getElementById('motivationBar');
-            if (bar) bar.style.display = 'none';
+        setClick("bannerClose", function () {
+            var bar = document.getElementById("motivationBar");
+            if (bar) bar.style.display = "none";
         });
 
-        document.querySelectorAll('.mood-btn').forEach(btn => {
+        document.querySelectorAll(".mood-btn").forEach(function (btn) {
             btn.onclick = function () {
-                var mood = this.getAttribute('data-mood');
+                var mood = this.getAttribute("data-mood");
 
-                addLog('moodLog', {
-                    type: 'mood',
+                addLog("moodLog", {
+                    type: "mood",
                     val: mood,
                     icon: moodEmojis[mood],
                     fullDate: currentFullDate(getSelectedTime())
@@ -164,47 +158,44 @@
             };
         });
 
-        document.querySelectorAll('.drop-btn').forEach((btn, index) => {
+        document.querySelectorAll(".drop-btn").forEach(function (btn, index) {
             btn.onclick = function () {
-                var active = btn.classList.contains('active');
+                var active = btn.classList.contains("active");
 
                 if (active) {
-                    btn.classList.remove('active');
+                    btn.classList.remove("active");
                     pondData.waterCount = Math.max(0, pondData.waterCount - 1);
+                    saveAndRefresh();
                 } else {
-                    btn.classList.add('active');
+                    btn.classList.add("active");
                     pondData.waterCount = index + 1;
 
-                    addLog('waterLog', {
-                        type: 'water',
+                    addLog("waterLog", {
+                        type: "water",
                         val: pondData.waterCount,
                         icon: "💧",
                         fullDate: currentFullDate(getSelectedTime())
                     });
-
-                    return;
                 }
-
-                saveAndRefresh();
             };
         });
     }
 
     function getSelectedTime() {
-        var timeInput = document.getElementById('manualTimeInput');
+        var timeInput = document.getElementById("manualTimeInput");
         return timeInput ? timeInput.value : null;
     }
 
     function resetTimePicker() {
-        var timeInput = document.getElementById('manualTimeInput');
+        var timeInput = document.getElementById("manualTimeInput");
         if (!timeInput) return;
 
         var now = new Date();
 
         timeInput.value =
-            now.getHours().toString().padStart(2, '0') +
+            now.getHours().toString().padStart(2, "0") +
             ":" +
-            now.getMinutes().toString().padStart(2, '0');
+            now.getMinutes().toString().padStart(2, "0");
     }
 
     function currentFullDate(manualTime) {
@@ -212,16 +203,40 @@
 
         var timeStr =
             manualTime ||
-            now.toLocaleTimeString('en-GB', {
-                hour: '2-digit',
-                minute: '2-digit',
+            now.toLocaleTimeString("en-GB", {
+                hour: "2-digit",
+                minute: "2-digit",
                 hour12: false
             });
 
-        return now.toLocaleDateString([], {
-            month: 'short',
-            day: 'numeric'
-        }) + " @ " + timeStr;
+        return (
+            now.toLocaleDateString([], {
+                month: "short",
+                day: "numeric"
+            }) +
+            " @ " +
+            timeStr
+        );
+    }
+
+    function getTime(fd) {
+        return fd ? fd.split("@")[1].trim() : "00:00";
+    }
+
+    function timeToMinutes(fd) {
+        var time = getTime(fd);
+        var parts = time.split(":");
+
+        var hours = parseInt(parts[0], 10) || 0;
+        var minutes = parseInt(parts[1], 10) || 0;
+
+        return hours * 60 + minutes;
+    }
+
+    function sortByLoggedTime(arr) {
+        return arr.slice().sort(function (a, b) {
+            return timeToMinutes(a.fullDate) - timeToMinutes(b.fullDate);
+        });
     }
 
     function addLog(logArray, payload) {
@@ -234,8 +249,8 @@
     }
 
     function addHop() {
-        var input = document.getElementById('dailyInput');
-        var priority = document.getElementById('priorityInput');
+        var input = document.getElementById("dailyInput");
+        var priority = document.getElementById("priorityInput");
 
         if (!input || !input.value.trim()) return;
 
@@ -246,12 +261,13 @@
         });
 
         input.value = "";
-
         saveAndRefresh();
     }
 
     window.toggleHop = function (id) {
-        var idx = pondData.daily.findIndex(g => g.id === id);
+        var idx = pondData.daily.findIndex(function (g) {
+            return g.id === id;
+        });
 
         if (idx > -1) {
             var item = pondData.daily.splice(idx, 1)[0];
@@ -267,27 +283,29 @@
     };
 
     window.deleteHop = function (id) {
-        pondData.daily = pondData.daily.filter(g => g.id !== id);
+        pondData.daily = pondData.daily.filter(function (g) {
+            return g.id !== id;
+        });
+
         saveAndRefresh();
     };
 
     function addSugar() {
-        var input = document.getElementById('sugarInput');
+        var input = document.getElementById("sugarInput");
         if (!input) return;
 
-        var val = parseInt(input.value);
-
+        var val = parseInt(input.value, 10);
         if (!val) return;
 
-        addLog('sugarLog', {
-            type: 'sugar',
+        addLog("sugarLog", {
+            type: "sugar",
             val: val,
             color:
-                (val < 70 || val > 250)
+                val < 70 || val > 250
                     ? "#ff4d4d"
-                    : (val > 180)
-                        ? "#ffa500"
-                        : "#2d5a27",
+                    : val > 180
+                    ? "#ffa500"
+                    : "#2d5a27",
             fullDate: currentFullDate(getSelectedTime())
         });
 
@@ -295,15 +313,14 @@
     }
 
     function addCarb() {
-        var input = document.getElementById('carbInput');
+        var input = document.getElementById("carbInput");
         if (!input) return;
 
-        var val = parseInt(input.value);
-
+        var val = parseInt(input.value, 10);
         if (!val) return;
 
-        addLog('carbLog', {
-            type: 'carb',
+        addLog("carbLog", {
+            type: "carb",
             val: val,
             fullDate: currentFullDate(getSelectedTime())
         });
@@ -312,15 +329,14 @@
     }
 
     function addInsulin() {
-        var input = document.getElementById('insulinInput');
+        var input = document.getElementById("insulinInput");
         if (!input) return;
 
         var val = parseFloat(input.value);
-
         if (!val) return;
 
-        addLog('insulinLog', {
-            type: 'insulin',
+        addLog("insulinLog", {
+            type: "insulin",
             val: val,
             fullDate: currentFullDate(getSelectedTime())
         });
@@ -329,8 +345,8 @@
     }
 
     window.addStress = function (level) {
-        addLog('stressLog', {
-            type: 'stress',
+        addLog("stressLog", {
+            type: "stress",
             val: level,
             score: stressScores[level],
             fullDate: currentFullDate(getSelectedTime())
@@ -338,8 +354,8 @@
     };
 
     window.addEnergy = function (level) {
-        addLog('energyLog', {
-            type: 'energy',
+        addLog("energyLog", {
+            type: "energy",
             val: level,
             score: energyScores[level],
             fullDate: currentFullDate(getSelectedTime())
@@ -347,16 +363,16 @@
     };
 
     window.addSymptom = function (symptom) {
-        addLog('symptomLog', {
-            type: 'symptom',
+        addLog("symptomLog", {
+            type: "symptom",
             symptom: symptom,
             fullDate: currentFullDate(getSelectedTime())
         });
     };
 
     window.addExercise = function (type, duration, intensity) {
-        addLog('exerciseLog', {
-            type: 'exercise',
+        addLog("exerciseLog", {
+            type: "exercise",
             exerciseType: type,
             duration: duration,
             intensity: intensity,
@@ -365,8 +381,8 @@
     };
 
     window.addExerciseFromInput = function (type, intensity) {
-        var input = document.getElementById('exerciseMinutesInput');
-        var minutes = input ? parseInt(input.value) : 0;
+        var input = document.getElementById("exerciseMinutesInput");
+        var minutes = input ? parseInt(input.value, 10) : 0;
 
         if (!minutes || minutes < 1) {
             alert("Please enter exercise minutes first.");
@@ -374,7 +390,6 @@
         }
 
         window.addExercise(type, minutes, intensity);
-
         input.value = "";
     };
 
@@ -403,14 +418,13 @@
         pondData.waterCount = 0;
 
         resetTimePicker();
-
         saveAndRefresh();
     }
 
     function clearEverything() {
         if (!confirm("Reset ALL data? This deletes goals, history, and tracker logs.")) return;
 
-        localStorage.removeItem('ProgressPond_V25');
+        localStorage.removeItem("ProgressPond_V25");
         location.reload();
     }
 
@@ -418,51 +432,54 @@
         if (!confirm("Delete entry?")) return;
 
         var map = {
-            mood: 'moodLog',
-            sugar: 'sugarLog',
-            carb: 'carbLog',
-            insulin: 'insulinLog',
-            water: 'waterLog',
-            stress: 'stressLog',
-            energy: 'energyLog',
-            symptom: 'symptomLog',
-            exercise: 'exerciseLog',
-            hop: 'history'
+            mood: "moodLog",
+            sugar: "sugarLog",
+            carb: "carbLog",
+            insulin: "insulinLog",
+            water: "waterLog",
+            stress: "stressLog",
+            energy: "energyLog",
+            symptom: "symptomLog",
+            exercise: "exerciseLog",
+            hop: "history"
         };
 
         if (map[type]) {
-            pondData[map[type]] =
-                pondData[map[type]].filter(i => i.id !== id);
+            pondData[map[type]] = pondData[map[type]].filter(function (i) {
+                return i.id !== id;
+            });
         }
 
         saveAndRefresh();
     };
 
     function calculateStabilityScore() {
-        if (pondData.sugarLog.length < 2) return 100;
+        var sortedSugar = sortByLoggedTime(pondData.sugarLog);
 
-        let totalVariation = 0;
+        if (sortedSugar.length < 2) return 100;
 
-        for (let i = 1; i < pondData.sugarLog.length; i++) {
-            totalVariation += Math.abs(
-                pondData.sugarLog[i].val -
-                pondData.sugarLog[i - 1].val
-            );
+        var totalVariation = 0;
+
+        for (var i = 1; i < sortedSugar.length; i++) {
+            totalVariation += Math.abs(sortedSugar[i].val - sortedSugar[i - 1].val);
         }
 
-        let avgVariation =
-            totalVariation / (pondData.sugarLog.length - 1);
+        var avgVariation = totalVariation / (sortedSugar.length - 1);
 
         return Math.max(0, Math.round(100 - avgVariation));
     }
 
     function calculateDailyStats() {
-        let sugars = pondData.sugarLog.map(s => s.val);
+        var sugars = pondData.sugarLog.map(function (s) {
+            return s.val;
+        });
 
         if (!sugars.length) return null;
 
-        let avg =
-            sugars.reduce((a, b) => a + b, 0) / sugars.length;
+        var avg =
+            sugars.reduce(function (a, b) {
+                return a + b;
+            }, 0) / sugars.length;
 
         return {
             avg: Math.round(avg),
@@ -473,32 +490,32 @@
     }
 
     async function exportGoalsToExcel() {
-        if (typeof ExcelJS === 'undefined' || typeof saveAs === 'undefined') {
+        if (typeof ExcelJS === "undefined" || typeof saveAs === "undefined") {
             alert("Excel export libraries are not loaded.");
             return;
         }
 
         var workbook = new ExcelJS.Workbook();
-        var worksheet = workbook.addWorksheet('Goal History');
+        var worksheet = workbook.addWorksheet("Goal History");
 
         worksheet.columns = [
-            { header: 'Completed Goal', key: 'goal', width: 50 },
-            { header: 'Completed Time', key: 'time', width: 28 }
+            { header: "Completed Goal", key: "goal", width: 50 },
+            { header: "Completed Time", key: "time", width: 28 }
         ];
 
-        worksheet.mergeCells('A1:B1');
-        worksheet.getCell('A1').value = 'Progress Pond Goal Report';
-        worksheet.getCell('A1').font = { bold: true, size: 18 };
-        worksheet.getCell('A1').alignment = { horizontal: 'center' };
+        worksheet.mergeCells("A1:B1");
+        worksheet.getCell("A1").value = "Progress Pond Goal Report";
+        worksheet.getCell("A1").font = { bold: true, size: 18 };
+        worksheet.getCell("A1").alignment = { horizontal: "center" };
 
         var currentRow = 3;
 
-        var canvas = document.getElementById('healthChart');
+        var canvas = document.getElementById("healthChart");
 
         if (canvas) {
             var imageId = workbook.addImage({
-                base64: canvas.toDataURL('image/png'),
-                extension: 'png'
+                base64: canvas.toDataURL("image/png"),
+                extension: "png"
             });
 
             worksheet.addImage(imageId, {
@@ -509,26 +526,26 @@
             currentRow += 22;
         }
 
-        worksheet.getCell(`A${currentRow}`).value = 'Completed Goals';
-        worksheet.getCell(`A${currentRow}`).font = { bold: true, size: 14 };
+        worksheet.getCell("A" + currentRow).value = "Completed Goals";
+        worksheet.getCell("A" + currentRow).font = { bold: true, size: 14 };
 
         currentRow++;
 
-        worksheet.getCell(`A${currentRow}`).value = 'Goal';
-        worksheet.getCell(`B${currentRow}`).value = 'Completed Time';
+        worksheet.getCell("A" + currentRow).value = "Goal";
+        worksheet.getCell("B" + currentRow).value = "Completed Time";
         worksheet.getRow(currentRow).font = { bold: true };
 
         currentRow++;
 
         if (pondData.history.length === 0) {
-            worksheet.getCell(`A${currentRow}`).value = 'No completed goals yet.';
+            worksheet.getCell("A" + currentRow).value = "No completed goals yet.";
         } else {
             pondData.history
                 .slice()
                 .reverse()
                 .forEach(function (goal) {
-                    worksheet.getCell(`A${currentRow}`).value = goal.text;
-                    worksheet.getCell(`B${currentRow}`).value = goal.fullDate;
+                    worksheet.getCell("A" + currentRow).value = goal.text;
+                    worksheet.getCell("B" + currentRow).value = goal.fullDate;
                     currentRow++;
                 });
         }
@@ -536,7 +553,7 @@
         worksheet.eachRow(function (row) {
             row.eachCell(function (cell) {
                 cell.alignment = {
-                    vertical: 'middle',
+                    vertical: "middle",
                     wrapText: true
                 };
             });
@@ -546,7 +563,7 @@
 
         saveAs(
             new Blob([buffer]),
-            `Progress_Pond_Goals_${new Date().toISOString().slice(0, 10)}.xlsx`
+            "Progress_Pond_Goals_" + new Date().toISOString().slice(0, 10) + ".xlsx"
         );
     }
 
@@ -559,26 +576,25 @@
     }
 
     function renderBasicUI() {
-        var currentDate = document.getElementById('currentDate');
+        var currentDate = document.getElementById("currentDate");
 
         if (currentDate) {
-            currentDate.textContent =
-                new Date().toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric'
-                });
+            currentDate.textContent = new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric"
+            });
         }
 
-        document.querySelectorAll('.drop-btn').forEach((btn, i) => {
+        document.querySelectorAll(".drop-btn").forEach(function (btn, i) {
             if (i < pondData.waterCount) {
-                btn.classList.add('active');
+                btn.classList.add("active");
             } else {
-                btn.classList.remove('active');
+                btn.classList.remove("active");
             }
         });
 
-        var waterText = document.getElementById('waterCountText');
+        var waterText = document.getElementById("waterCountText");
 
         if (waterText) {
             waterText.textContent = pondData.waterCount + " / 8";
@@ -586,7 +602,7 @@
     }
 
     function renderTasks() {
-        var dailyList = document.getElementById('dailyList');
+        var dailyList = document.getElementById("dailyList");
         if (!dailyList) return;
 
         var listHtml = "";
@@ -611,23 +627,18 @@
         dailyList.innerHTML = listHtml || "No active hops...";
 
         var total = pondData.daily.length + pondData.history.length;
+        var percent = total ? Math.round((pondData.history.length / total) * 100) : 0;
 
-        var percent =
-            total
-                ? Math.round((pondData.history.length / total) * 100)
-                : 0;
+        var progress = document.getElementById("dailyProgress");
+        var progressText = document.getElementById("dailyProgressText");
 
-        var progress = document.getElementById('dailyProgress');
-        var progressText = document.getElementById('dailyProgressText');
-
-        if (progress) progress.style.width = percent + '%';
-        if (progressText) progressText.textContent = percent + '%';
+        if (progress) progress.style.width = percent + "%";
+        if (progressText) progressText.textContent = percent + "%";
     }
 
     function renderAnalytics() {
-        let stats = calculateDailyStats();
-
-        let panel = document.getElementById('analyticsPanel');
+        var stats = calculateDailyStats();
+        var panel = document.getElementById("analyticsPanel");
 
         if (!panel) return;
 
@@ -650,7 +661,7 @@
     }
 
     function renderHistory() {
-        var hopHistory = document.getElementById('dailyHistoryList');
+        var hopHistory = document.getElementById("dailyHistoryList");
 
         if (hopHistory) {
             hopHistory.innerHTML =
@@ -658,230 +669,226 @@
                     .slice()
                     .reverse()
                     .slice(0, 40)
-                    .map(h => `
-                        <div class="history-item">
-                            <div>
-                                🌿 ${h.text}
-                                <small>${h.fullDate}</small>
-                            </div>
+                    .map(function (h) {
+                        return `
+                            <div class="history-item">
+                                <div>
+                                    🌿 ${h.text}
+                                    <small>${h.fullDate}</small>
+                                </div>
 
-                            <button onclick="deleteLogItem('hop', ${h.id})">
-                                ×
-                            </button>
-                        </div>
-                    `).join('') || "No completed goals yet.";
+                                <button onclick="deleteLogItem('hop', ${h.id})">
+                                    ×
+                                </button>
+                            </div>
+                        `;
+                    })
+                    .join("") || "No completed goals yet.";
         }
 
         var combined = [
-            ...pondData.moodLog.map(m => ({
-                ...m,
-                display: `${m.icon} ${m.val}`,
-                logType: 'mood'
-            })),
+            ...pondData.moodLog.map(function (m) {
+                return { ...m, display: `${m.icon} ${m.val}`, logType: "mood" };
+            }),
 
-            ...pondData.sugarLog.map(s => ({
-                ...s,
-                display: `🩸 ${s.val} mg/dL`,
-                logType: 'sugar'
-            })),
+            ...pondData.sugarLog.map(function (s) {
+                return { ...s, display: `🩸 ${s.val} mg/dL`, logType: "sugar" };
+            }),
 
-            ...pondData.carbLog.map(c => ({
-                ...c,
-                display: `🥣 ${c.val}g carbs`,
-                logType: 'carb'
-            })),
+            ...pondData.carbLog.map(function (c) {
+                return { ...c, display: `🥣 ${c.val}g carbs`, logType: "carb" };
+            }),
 
-            ...pondData.insulinLog.map(i => ({
-                ...i,
-                display: `💉 ${i.val} units`,
-                logType: 'insulin'
-            })),
+            ...pondData.insulinLog.map(function (i) {
+                return { ...i, display: `💉 ${i.val} units`, logType: "insulin" };
+            }),
 
-            ...pondData.waterLog.map(w => ({
-                ...w,
-                display: `💧 Water #${w.val}`,
-                logType: 'water'
-            })),
+            ...pondData.waterLog.map(function (w) {
+                return { ...w, display: `💧 Water #${w.val}`, logType: "water" };
+            }),
 
-            ...pondData.stressLog.map(s => ({
-                ...s,
-                display: `🧠 Stress: ${s.val}`,
-                logType: 'stress'
-            })),
+            ...pondData.stressLog.map(function (s) {
+                return { ...s, display: `🧠 Stress: ${s.val}`, logType: "stress" };
+            }),
 
-            ...pondData.energyLog.map(e => ({
-                ...e,
-                display: `⚡ Energy: ${e.val}`,
-                logType: 'energy'
-            })),
+            ...pondData.energyLog.map(function (e) {
+                return { ...e, display: `⚡ Energy: ${e.val}`, logType: "energy" };
+            }),
 
-            ...pondData.symptomLog.map(sym => ({
-                ...sym,
-                display: `🩺 ${sym.symptom}`,
-                logType: 'symptom'
-            })),
+            ...pondData.symptomLog.map(function (sym) {
+                return { ...sym, display: `🩺 ${sym.symptom}`, logType: "symptom" };
+            }),
 
-            ...pondData.exerciseLog.map(ex => ({
-                ...ex,
-                display: `🏃 ${ex.exerciseType} (${ex.duration} min, ${ex.intensity})`,
-                logType: 'exercise'
-            }))
-        ].sort((a, b) => b.id - a.id);
+            ...pondData.exerciseLog.map(function (ex) {
+                return {
+                    ...ex,
+                    display: `🏃 ${ex.exerciseType} (${ex.duration} min, ${ex.intensity})`,
+                    logType: "exercise"
+                };
+            })
+        ].sort(function (a, b) {
+            return b.id - a.id;
+        });
 
-        var tracker = document.getElementById('moodHistoryList');
+        var tracker = document.getElementById("moodHistoryList");
 
         if (tracker) {
             tracker.innerHTML =
                 combined
                     .slice(0, 50)
-                    .map(item => `
-                        <div class="history-item">
-                            <div>
-                                ${item.display}
-                                <small>${item.fullDate}</small>
-                            </div>
+                    .map(function (item) {
+                        return `
+                            <div class="history-item">
+                                <div>
+                                    ${item.display}
+                                    <small>${item.fullDate}</small>
+                                </div>
 
-                            <button onclick="deleteLogItem('${item.logType}', ${item.id})">
-                                ×
-                            </button>
-                        </div>
-                    `).join('') || "No tracker history yet.";
+                                <button onclick="deleteLogItem('${item.logType}', ${item.id})">
+                                    ×
+                                </button>
+                            </div>
+                        `;
+                    })
+                    .join("") || "No tracker history yet.";
         }
     }
 
     function renderChart() {
-        var canvas = document.getElementById('healthChart');
+        var canvas = document.getElementById("healthChart");
 
-        if (!canvas || typeof Chart === 'undefined') return;
+        if (!canvas || typeof Chart === "undefined") return;
 
-        var ctx = canvas.getContext('2d');
+        var ctx = canvas.getContext("2d");
 
-        var getTime = fd =>
-            fd ? fd.split('@')[1].trim() : "00:00";
+        var sortedSugar = sortByLoggedTime(pondData.sugarLog);
+        var sortedMood = sortByLoggedTime(pondData.moodLog);
+        var sortedCarbs = sortByLoggedTime(pondData.carbLog);
+        var sortedWater = sortByLoggedTime(pondData.waterLog);
+        var sortedInsulin = sortByLoggedTime(pondData.insulinLog);
+        var sortedStress = sortByLoggedTime(pondData.stressLog);
+        var sortedEnergy = sortByLoggedTime(pondData.energyLog);
 
         var allEntries = [
-            ...pondData.sugarLog,
-            ...pondData.moodLog,
-            ...pondData.carbLog,
-            ...pondData.waterLog,
-            ...pondData.insulinLog,
-            ...pondData.stressLog,
-            ...pondData.energyLog
-        ].sort((a, b) => a.id - b.id);
+            ...sortedSugar,
+            ...sortedMood,
+            ...sortedCarbs,
+            ...sortedWater,
+            ...sortedInsulin,
+            ...sortedStress,
+            ...sortedEnergy
+        ].sort(function (a, b) {
+            return timeToMinutes(a.fullDate) - timeToMinutes(b.fullDate);
+        });
 
         var labels = [
             ...new Set(
-                allEntries.map(e => getTime(e.fullDate))
+                allEntries.map(function (e) {
+                    return getTime(e.fullDate);
+                })
             )
         ];
 
         var datasets = [];
 
-        if (pondData.sugarLog.length > 0) {
+        if (sortedSugar.length > 0) {
             datasets.push({
-                label: 'Glucose',
-                data: pondData.sugarLog.map(s => ({
-                    x: getTime(s.fullDate),
-                    y: s.val
-                })),
-                borderColor: '#ef4444',
-                backgroundColor: '#ef4444',
+                label: "Glucose",
+                data: sortedSugar.map(function (s) {
+                    return { x: getTime(s.fullDate), y: s.val };
+                }),
+                borderColor: "#ef4444",
+                backgroundColor: "#ef4444",
                 tension: 0.3,
-                yAxisID: 'y'
+                yAxisID: "y"
             });
         }
 
-        if (pondData.moodLog.length > 0) {
+        if (sortedMood.length > 0) {
             datasets.push({
-                label: 'Mood',
-                data: pondData.moodLog.map(m => ({
-                    x: getTime(m.fullDate),
-                    y: moodScores[m.val] || 5
-                })),
-                borderColor: '#f59e0b',
-                backgroundColor: '#f59e0b',
+                label: "Mood",
+                data: sortedMood.map(function (m) {
+                    return { x: getTime(m.fullDate), y: moodScores[m.val] || 5 };
+                }),
+                borderColor: "#f59e0b",
+                backgroundColor: "#f59e0b",
                 tension: 0.3,
-                yAxisID: 'yMood'
+                yAxisID: "yMood"
             });
         }
 
-        if (pondData.carbLog.length > 0) {
+        if (sortedCarbs.length > 0) {
             datasets.push({
-                label: 'Carbs',
-                data: pondData.carbLog.map(c => ({
-                    x: getTime(c.fullDate),
-                    y: c.val
-                })),
-                backgroundColor: '#10b981',
-                pointStyle: 'rect',
+                label: "Carbs",
+                data: sortedCarbs.map(function (c) {
+                    return { x: getTime(c.fullDate), y: c.val };
+                }),
+                backgroundColor: "#10b981",
+                pointStyle: "rect",
                 showLine: false,
                 pointRadius: 8,
-                yAxisID: 'y'
+                yAxisID: "y"
             });
         }
 
-        if (pondData.waterLog.length > 0) {
+        if (sortedWater.length > 0) {
             datasets.push({
-                label: 'Water',
-                data: pondData.waterLog.map(w => ({
-                    x: getTime(w.fullDate),
-                    y: w.val
-                })),
-                backgroundColor: '#00d4ff',
-                pointStyle: 'triangle',
+                label: "Water",
+                data: sortedWater.map(function (w) {
+                    return { x: getTime(w.fullDate), y: w.val };
+                }),
+                backgroundColor: "#00d4ff",
+                pointStyle: "triangle",
                 showLine: false,
                 pointRadius: 8,
-                yAxisID: 'y'
+                yAxisID: "y"
             });
         }
 
-        if (pondData.insulinLog.length > 0) {
+        if (sortedInsulin.length > 0) {
             datasets.push({
-                label: 'Insulin',
-                data: pondData.insulinLog.map(i => ({
-                    x: getTime(i.fullDate),
-                    y: i.val
-                })),
-                backgroundColor: '#8b5cf6',
-                pointStyle: 'star',
+                label: "Insulin",
+                data: sortedInsulin.map(function (i) {
+                    return { x: getTime(i.fullDate), y: i.val };
+                }),
+                backgroundColor: "#8b5cf6",
+                pointStyle: "star",
                 showLine: false,
                 pointRadius: 10,
-                yAxisID: 'y'
+                yAxisID: "y"
             });
         }
 
-        if (pondData.stressLog.length > 0) {
+        if (sortedStress.length > 0) {
             datasets.push({
-                label: 'Stress',
-                data: pondData.stressLog.map(s => ({
-                    x: getTime(s.fullDate),
-                    y: s.score
-                })),
-                borderColor: '#ff00aa',
-                backgroundColor: '#ff00aa',
+                label: "Stress",
+                data: sortedStress.map(function (s) {
+                    return { x: getTime(s.fullDate), y: s.score };
+                }),
+                borderColor: "#ff00aa",
+                backgroundColor: "#ff00aa",
                 tension: 0.3,
-                yAxisID: 'yMood'
+                yAxisID: "yMood"
             });
         }
 
-        if (pondData.energyLog.length > 0) {
+        if (sortedEnergy.length > 0) {
             datasets.push({
-                label: 'Energy',
-                data: pondData.energyLog.map(e => ({
-                    x: getTime(e.fullDate),
-                    y: e.score
-                })),
-                borderColor: '#00aa77',
-                backgroundColor: '#00aa77',
+                label: "Energy",
+                data: sortedEnergy.map(function (e) {
+                    return { x: getTime(e.fullDate), y: e.score };
+                }),
+                borderColor: "#00aa77",
+                backgroundColor: "#00aa77",
                 tension: 0.3,
-                yAxisID: 'yMood'
+                yAxisID: "yMood"
             });
         }
 
         if (pondChart) pondChart.destroy();
 
         pondChart = new Chart(ctx, {
-            type: 'line',
+            type: "line",
             data: {
                 datasets: datasets
             },
@@ -890,33 +897,33 @@
                 maintainAspectRatio: false,
 
                 interaction: {
-                    mode: 'nearest',
+                    mode: "nearest",
                     intersect: false
                 },
 
                 scales: {
                     x: {
-                        type: 'category',
+                        type: "category",
                         labels: labels
                     },
 
                     y: {
-                        position: 'left',
+                        position: "left",
                         min: 0,
                         max: 350,
                         title: {
                             display: true,
-                            text: 'Stats'
+                            text: "Stats"
                         }
                     },
 
                     yMood: {
-                        position: 'right',
+                        position: "right",
                         min: 1,
                         max: 10,
                         title: {
                             display: true,
-                            text: 'Mood / Stress / Energy'
+                            text: "Mood / Stress / Energy"
                         },
                         grid: {
                             drawOnChartArea: false
@@ -944,3 +951,4 @@
     }
 
 })();
+```
