@@ -1,13 +1,13 @@
+/* =========================================================
+   PROGRESS POND V25
+   Expanded Health + Mood Analytics System
+========================================================== */
+
 (function () {
 
-    /* =========================================================
-       PROGRESS POND V24
-       Expanded Health + Mood Analytics System
-    ========================================================== */
-
-    // =========================================================
-    // 1. DATA MODEL
-    // =========================================================
+    // =====================================================
+    // DATA MODEL
+    // =====================================================
 
     var pondData = {
 
@@ -29,15 +29,16 @@
         analytics: [],
 
         waterCount: 0,
+
         streak: 0,
         lastStreakDate: null
     };
 
     var pondChart = null;
 
-    // =========================================================
-    // 2. SCORE MAPS
-    // =========================================================
+    // =====================================================
+    // SCORE MAPS
+    // =====================================================
 
     var moodScores = {
         "Manic": 10,
@@ -81,11 +82,12 @@
         Manic: "🤪"
     };
 
-    // =========================================================
-    // 3. MOTIVATION QUOTES
-    // =========================================================
+    // =====================================================
+    // QUOTES
+    // =====================================================
 
     var frogQuotes = [
+
         "🐸 💖 Ribbit! You're doing amazing! 💞 🐸",
         "✨ 🐸 Take a deep breath, little froggy! 💗 ✨",
         "🌸 🐸 Every hop counts! I'm proud of you! 💖 🌸",
@@ -93,34 +95,17 @@
         "🐸 💗 You are the best frog in the pond! ✨ 🐸",
         "🐸 ✨ Leap into happiness! ✨ 🐸",
         "🐸 Don't worry, be hoppy! 🐸",
-        "🐸 💖 Feeling totally un-frog-gettable today! 💖 🐸",
-        "🌿 🐸 Just a little frog in a big, beautiful pond. 🐸 🌿",
-        "🐸 💧 Enjoying the simple things! 🐸 💧",
-        "🐸 😎 Toad-ally awesome! 😎 🐸",
-        "🐸 🌈 Keep calm and leap on! 🌈 🐸",
-        "🌊 🐸 Every day is a good day to make a splash! 🐸 🌊"
+        "🐸 🌈 Keep calm and leap on! 🌈 🐸"
+
     ];
 
-    // =========================================================
-    // 4. INITIALIZATION
-    // =========================================================
+    // =====================================================
+    // INIT
+    // =====================================================
 
     window.onload = function () {
 
-        var saved = localStorage.getItem('ProgressPond_V24');
-
-        if (saved) {
-            try {
-                var parsed = JSON.parse(saved);
-
-                for (var key in parsed) {
-                    pondData[key] = parsed[key];
-                }
-
-            } catch (e) {
-                console.error("Load error", e);
-            }
-        }
+        loadStorage();
 
         document.getElementById('motivationText').textContent =
             frogQuotes[Math.floor(Math.random() * frogQuotes.length)];
@@ -132,143 +117,261 @@
         renderAll();
     };
 
-    // =========================================================
-    // 5. BUTTON SETUP
-    // =========================================================
+    // =====================================================
+    // STORAGE
+    // =====================================================
+
+    function loadStorage() {
+
+        var saved =
+            localStorage.getItem('ProgressPond_V25');
+
+        if (!saved) return;
+
+        try {
+
+            var parsed = JSON.parse(saved);
+
+            for (var key in parsed) {
+                pondData[key] = parsed[key];
+            }
+
+        } catch (e) {
+
+            console.error("Load Error:", e);
+        }
+    }
+
+    function saveAndRefresh() {
+
+        localStorage.setItem(
+            'ProgressPond_V25',
+            JSON.stringify(pondData)
+        );
+
+        renderAll();
+    }
+
+    // =====================================================
+    // BUTTON SETUP
+    // =====================================================
 
     function setupButtons() {
 
         function setClick(id, fn) {
+
             var el = document.getElementById(id);
 
             if (el) el.onclick = fn;
         }
 
+        // =========================
+        // BASIC BUTTONS
+        // =========================
+
         setClick('addDailyBtn', addHop);
+
         setClick('addSugarBtn', addSugar);
+
         setClick('addCarbBtn', addCarb);
+
         setClick('addInsulinBtn', addInsulin);
 
-        setClick('clearWaterBtn', function () {
-            pondData.waterCount = 0;
-            pondData.waterLog = [];
-            saveAndRefresh();
-        });
-
         setClick('resetPondBtn', resetToday);
+
         setClick('clearHistoryBtn', clearEverything);
 
-        // Mood Buttons
+        setClick('clearWaterBtn', clearWater);
 
-        document.querySelectorAll('.mood-btn').forEach(btn => {
+        setClick('historyToggle', function () {
 
-            btn.onclick = function () {
-
-                addLog('moodLog', {
-                    type: 'mood',
-                    val: this.getAttribute('data-mood'),
-                    icon: moodEmojis[this.getAttribute('data-mood')],
-                    fullDate: currentFullDate(
-                        document.getElementById('manualTimeInput').value
-                    )
-                });
-            };
+            document
+                .getElementById('historyFooter')
+                .classList.toggle('collapsed');
         });
 
-        // Water Buttons
+        // =========================
+        // BANNER
+        // =========================
 
-        document.querySelectorAll('.drop-btn').forEach((btn, index) => {
+        setClick('bannerClose', function () {
 
-            btn.onclick = function () {
+            document.getElementById(
+                'motivationBar'
+            ).style.display = 'none';
+        });
 
-                const isActive = btn.classList.contains('active');
+        // =========================
+        // MOOD BUTTONS
+        // =========================
 
-                if (isActive) {
+        document
+            .querySelectorAll('.mood-btn')
+            .forEach(btn => {
 
-                    btn.classList.remove('active');
+                btn.onclick = function () {
 
-                    pondData.waterCount =
-                        Math.max(0, pondData.waterCount - 1);
+                    addLog('moodLog', {
 
-                } else {
+                        type: 'mood',
 
-                    btn.classList.add('active');
+                        val:
+                            this.getAttribute('data-mood'),
 
-                    pondData.waterCount = index + 1;
+                        icon:
+                            moodEmojis[
+                            this.getAttribute('data-mood')
+                            ],
 
-                    addLog('waterLog', {
-                        type: 'water',
-                        val: pondData.waterCount,
-                        icon: "💧",
-                        fullDate: currentFullDate(null)
+                        fullDate:
+                            currentFullDate(
+                                getSelectedTime()
+                            )
                     });
-                }
+                };
+            });
 
-                saveAndRefresh();
-            };
-        });
+        // =========================
+        // WATER BUTTONS
+        // =========================
+
+        document
+            .querySelectorAll('.drop-btn')
+            .forEach((btn, index) => {
+
+                btn.onclick = function () {
+
+                    const active =
+                        btn.classList.contains('active');
+
+                    if (active) {
+
+                        btn.classList.remove('active');
+
+                        pondData.waterCount =
+                            Math.max(
+                                0,
+                                pondData.waterCount - 1
+                            );
+
+                    } else {
+
+                        btn.classList.add('active');
+
+                        pondData.waterCount =
+                            index + 1;
+
+                        addLog('waterLog', {
+
+                            type: 'water',
+
+                            val: pondData.waterCount,
+
+                            icon: "💧",
+
+                            fullDate:
+                                currentFullDate(
+                                    getSelectedTime()
+                                )
+                        });
+                    }
+
+                    saveAndRefresh();
+                };
+            });
     }
 
-    // =========================================================
-    // 6. UNIVERSAL LOGGING
-    // =========================================================
+    // =====================================================
+    // TIME HELPERS
+    // =====================================================
 
-    function addLog(logArray, payload) {
+    function getSelectedTime() {
 
-        pondData[logArray].push({
-            id: Date.now(),
-            ...payload
-        });
+        var timeInput =
+            document.getElementById('manualTimeInput');
 
-        saveAndRefresh();
+        return timeInput
+            ? timeInput.value
+            : null;
     }
-
-    // =========================================================
-    // 7. TIME
-    // =========================================================
 
     function resetTimePicker() {
 
         var now = new Date();
 
-        document.getElementById('manualTimeInput').value =
-            now.getHours().toString().padStart(2, '0') +
-            ":" +
-            now.getMinutes().toString().padStart(2, '0');
+        document.getElementById(
+            'manualTimeInput'
+        ).value =
+
+            now.getHours()
+                .toString()
+                .padStart(2, '0')
+
+            + ":"
+
+            + now.getMinutes()
+                .toString()
+                .padStart(2, '0');
     }
 
     function currentFullDate(manualTime) {
 
         var now = new Date();
 
-        var timeStr =
-            manualTime ||
+        var timeStr = manualTime ||
+
             now.toLocaleTimeString('en-GB', {
+
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false
             });
 
         return now.toLocaleDateString([], {
+
             month: 'short',
             day: 'numeric'
+
         }) + " @ " + timeStr;
     }
 
-    // =========================================================
-    // 8. DAILY TASKS
-    // =========================================================
+    // =====================================================
+    // UNIVERSAL LOGGING
+    // =====================================================
+
+    function addLog(logArray, payload) {
+
+        pondData[logArray].push({
+
+            id: Date.now(),
+
+            ...payload
+        });
+
+        saveAndRefresh();
+    }
+
+    // =====================================================
+    // TASKS
+    // =====================================================
 
     function addHop() {
 
-        var input = document.getElementById('dailyInput');
+        var input =
+            document.getElementById('dailyInput');
 
         if (!input.value.trim()) return;
 
         pondData.daily.push({
+
             id: Date.now(),
+
             text: input.value,
-            priority: document.getElementById('priorityInput').value
+
+            priority:
+                document.getElementById(
+                    'priorityInput'
+                ).value
         });
 
         input.value = "";
@@ -279,16 +382,27 @@
     window.toggleHop = function (id) {
 
         var idx =
-            pondData.daily.findIndex(g => g.id === id);
+            pondData.daily.findIndex(
+                g => g.id === id
+            );
 
         if (idx > -1) {
 
-            var item = pondData.daily.splice(idx, 1)[0];
+            var item =
+                pondData.daily.splice(idx, 1)[0];
 
             pondData.history.push({
+
                 id: Date.now(),
-                text: "[" + item.priority + "] " + item.text,
-                fullDate: currentFullDate(null)
+
+                text:
+                    "[" +
+                    item.priority +
+                    "] " +
+                    item.text,
+
+                fullDate:
+                    currentFullDate()
             });
 
             saveAndRefresh();
@@ -298,14 +412,16 @@
     window.deleteHop = function (id) {
 
         pondData.daily =
-            pondData.daily.filter(g => g.id !== id);
+            pondData.daily.filter(
+                g => g.id !== id
+            );
 
         saveAndRefresh();
     };
 
-    // =========================================================
-    // 9. HEALTH TRACKING
-    // =========================================================
+    // =====================================================
+    // HEALTH
+    // =====================================================
 
     function addSugar() {
 
@@ -316,20 +432,23 @@
 
         if (!val) return;
 
-        var color =
-            (val < 70 || val > 250)
-                ? "#ff4d4d"
-                : (val > 180
-                    ? "#ffa500"
-                    : "#2d5a27");
-
         addLog('sugarLog', {
+
             type: 'sugar',
+
             val: val,
-            color: color,
-            fullDate: currentFullDate(
-                document.getElementById('manualTimeInput').value
-            )
+
+            color:
+                (val < 70 || val > 250)
+                    ? "#ff4d4d"
+                    : (val > 180)
+                        ? "#ffa500"
+                        : "#2d5a27",
+
+            fullDate:
+                currentFullDate(
+                    getSelectedTime()
+                )
         });
 
         input.value = "";
@@ -345,11 +464,15 @@
         if (!val) return;
 
         addLog('carbLog', {
+
             type: 'carb',
+
             val: val,
-            fullDate: currentFullDate(
-                document.getElementById('manualTimeInput').value
-            )
+
+            fullDate:
+                currentFullDate(
+                    getSelectedTime()
+                )
         });
 
         input.value = "";
@@ -367,46 +490,70 @@
         if (!val) return;
 
         addLog('insulinLog', {
+
             type: 'insulin',
+
             val: val,
-            fullDate: currentFullDate(
-                document.getElementById('manualTimeInput').value
-            )
+
+            fullDate:
+                currentFullDate(
+                    getSelectedTime()
+                )
         });
 
         input.value = "";
     }
 
-    // =========================================================
-    // 10. ADVANCED LOGGING
-    // =========================================================
+    // =====================================================
+    // EXTRA TRACKING
+    // =====================================================
 
     window.addStress = function (level) {
 
         addLog('stressLog', {
+
             type: 'stress',
+
             val: level,
+
             score: stressScores[level],
-            fullDate: currentFullDate(null)
+
+            fullDate:
+                currentFullDate(
+                    getSelectedTime()
+                )
         });
     };
 
     window.addEnergy = function (level) {
 
         addLog('energyLog', {
+
             type: 'energy',
+
             val: level,
+
             score: energyScores[level],
-            fullDate: currentFullDate(null)
+
+            fullDate:
+                currentFullDate(
+                    getSelectedTime()
+                )
         });
     };
 
     window.addSymptom = function (symptom) {
 
         addLog('symptomLog', {
+
             type: 'symptom',
+
             symptom: symptom,
-            fullDate: currentFullDate(null)
+
+            fullDate:
+                currentFullDate(
+                    getSelectedTime()
+                )
         });
     };
 
@@ -417,105 +564,45 @@
     ) {
 
         addLog('exerciseLog', {
+
             type: 'exercise',
+
             exerciseType: type,
+
             duration: duration,
+
             intensity: intensity,
-            fullDate: currentFullDate(null)
+
+            fullDate:
+                currentFullDate(
+                    getSelectedTime()
+                )
         });
     };
 
-    // =========================================================
-    // 11. ANALYTICS
-    // =========================================================
+    // =====================================================
+    // RESETS
+    // =====================================================
 
-    function calculateGlucoseRate() {
+    function clearWater() {
 
-        let rates = [];
+        pondData.waterCount = 0;
 
-        for (let i = 1; i < pondData.sugarLog.length; i++) {
+        pondData.waterLog = [];
 
-            let prev = pondData.sugarLog[i - 1];
-            let curr = pondData.sugarLog[i];
-
-            let diff = curr.val - prev.val;
-
-            rates.push({
-                time: curr.fullDate,
-                rate: diff
-            });
-        }
-
-        return rates;
-    }
-
-    function calculateStabilityScore() {
-
-        if (pondData.sugarLog.length < 2)
-            return 100;
-
-        let totalVariation = 0;
-
-        for (let i = 1; i < pondData.sugarLog.length; i++) {
-
-            totalVariation += Math.abs(
-                pondData.sugarLog[i].val -
-                pondData.sugarLog[i - 1].val
-            );
-        }
-
-        let avgVariation =
-            totalVariation /
-            (pondData.sugarLog.length - 1);
-
-        return Math.max(
-            0,
-            Math.round(100 - avgVariation)
-        );
-    }
-
-    function calculateDailyStats() {
-
-        let sugars =
-            pondData.sugarLog.map(s => s.val);
-
-        if (!sugars.length) return null;
-
-        let avg =
-            sugars.reduce((a, b) => a + b, 0) /
-            sugars.length;
-
-        let max = Math.max(...sugars);
-        let min = Math.min(...sugars);
-
-        return {
-            avg: Math.round(avg),
-            max,
-            min,
-            stability: calculateStabilityScore()
-        };
-    }
-
-    // =========================================================
-    // 12. STORAGE
-    // =========================================================
-
-    function saveAndRefresh() {
-
-        localStorage.setItem(
-            'ProgressPond_V24',
-            JSON.stringify(pondData)
-        );
-
-        renderAll();
+        saveAndRefresh();
     }
 
     function resetToday() {
 
-        if (!confirm("Reset today?")) return;
+        if (!confirm("Reset today?"))
+            return;
 
         pondData.daily = [];
+
         pondData.waterCount = 0;
+
+        pondData.waterLog = [];
 
         resetTimePicker();
 
@@ -524,23 +611,30 @@
 
     function clearEverything() {
 
-        if (!confirm("Delete ALL data?")) return;
+        if (!confirm("Delete ALL data?"))
+            return;
 
-        localStorage.removeItem('ProgressPond_V24');
+        localStorage.removeItem(
+            'ProgressPond_V25'
+        );
 
         location.reload();
     }
 
-    // =========================================================
-    // 13. DELETE ITEMS
-    // =========================================================
+    // =====================================================
+    // DELETE LOGS
+    // =====================================================
 
-    window.deleteLogItem = function (type, id) {
+    window.deleteLogItem = function (
+        type,
+        id
+    ) {
 
-        if (!confirm("Delete this log entry?"))
+        if (!confirm("Delete entry?"))
             return;
 
         var map = {
+
             mood: 'moodLog',
             sugar: 'sugarLog',
             carb: 'carbLog',
@@ -563,17 +657,88 @@
         saveAndRefresh();
     };
 
-    // =========================================================
-    // 14. MAIN RENDER
-    // =========================================================
+    // =====================================================
+    // ANALYTICS
+    // =====================================================
+
+    function calculateStabilityScore() {
+
+        if (pondData.sugarLog.length < 2)
+            return 100;
+
+        let totalVariation = 0;
+
+        for (let i = 1; i < pondData.sugarLog.length; i++) {
+
+            totalVariation += Math.abs(
+
+                pondData.sugarLog[i].val -
+
+                pondData.sugarLog[i - 1].val
+            );
+        }
+
+        let avgVariation =
+            totalVariation /
+            (pondData.sugarLog.length - 1);
+
+        return Math.max(
+            0,
+            Math.round(100 - avgVariation)
+        );
+    }
+
+    function calculateDailyStats() {
+
+        let sugars =
+            pondData.sugarLog.map(s => s.val);
+
+        if (!sugars.length) return null;
+
+        let avg =
+            sugars.reduce((a, b) => a + b, 0)
+            / sugars.length;
+
+        return {
+
+            avg: Math.round(avg),
+
+            max: Math.max(...sugars),
+
+            min: Math.min(...sugars),
+
+            stability:
+                calculateStabilityScore()
+        };
+    }
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     function renderAll() {
 
-        // =============================
-        // BASIC UI
-        // =============================
+        renderBasicUI();
 
-        document.getElementById('currentDate').textContent =
+        renderTasks();
+
+        renderAnalytics();
+
+        renderHistory();
+
+        renderChart();
+    }
+
+    // =====================================================
+    // BASIC UI
+    // =====================================================
+
+    function renderBasicUI() {
+
+        document.getElementById(
+            'currentDate'
+        ).textContent =
+
             new Date().toLocaleDateString(
                 'en-US',
                 {
@@ -583,25 +748,34 @@
                 }
             );
 
-        document.querySelectorAll('.drop-btn')
+        document
+            .querySelectorAll('.drop-btn')
             .forEach((btn, i) => {
 
                 if (i < pondData.waterCount)
                     btn.classList.add('active');
+
                 else
                     btn.classList.remove('active');
             });
 
         var waterText =
-            document.getElementById('waterCountText');
+            document.getElementById(
+                'waterCountText'
+            );
 
-        if (waterText)
+        if (waterText) {
+
             waterText.textContent =
                 pondData.waterCount + " / 8";
+        }
+    }
 
-        // =============================
-        // DAILY TASKS
-        // =============================
+    // =====================================================
+    // TASKS
+    // =====================================================
+
+    function renderTasks() {
 
         var listHtml = "";
 
@@ -610,6 +784,7 @@
             var g = pondData.daily[i];
 
             listHtml += `
+
             <li style="
                 display:flex;
                 align-items:center;
@@ -638,17 +813,20 @@
                         color:red;
                         cursor:pointer;
                     "
-                >×</button>
+                >
+                    ×
+                </button>
 
-            </li>`;
+            </li>
+            `;
         }
 
-        document.getElementById('dailyList').innerHTML =
-            listHtml || "No active hops...";
+        document.getElementById(
+            'dailyList'
+        ).innerHTML =
 
-        // =============================
-        // PROGRESS BAR
-        // =============================
+            listHtml ||
+            "No active hops...";
 
         var total =
             pondData.daily.length +
@@ -657,349 +835,382 @@
         var percent =
             total
                 ? Math.round(
-                    (pondData.history.length / total) * 100
+                    (pondData.history.length / total)
+                    * 100
                 )
                 : 0;
 
-        document.getElementById('dailyProgress')
-            .style.width = percent + '%';
+        document.getElementById(
+            'dailyProgress'
+        ).style.width = percent + '%';
 
-        document.getElementById('dailyProgressText')
-            .textContent = percent + '%';
+        document.getElementById(
+            'dailyProgressText'
+        ).textContent = percent + '%';
+    }
 
-        // =============================
-        // ANALYTICS PANEL
-        // =============================
+    // =====================================================
+    // ANALYTICS
+    // =====================================================
+
+    function renderAnalytics() {
 
         let stats = calculateDailyStats();
 
-        let analyticsPanel =
-            document.getElementById('analyticsPanel');
+        let panel =
+            document.getElementById(
+                'analyticsPanel'
+            );
 
-        if (stats && analyticsPanel) {
+        if (!panel || !stats) return;
 
-            analyticsPanel.innerHTML = `
-                <div>📊 Avg Glucose: ${stats.avg}</div>
-                <div>⬆️ High: ${stats.max}</div>
-                <div>⬇️ Low: ${stats.min}</div>
-                <div>🌊 Stability: ${stats.stability}%</div>
-            `;
+        panel.innerHTML = `
+
+            <div>📊 Avg: ${stats.avg}</div>
+
+            <div>⬆️ High: ${stats.max}</div>
+
+            <div>⬇️ Low: ${stats.min}</div>
+
+            <div>🌊 Stability: ${stats.stability}%</div>
+        `;
+    }
+
+    // =====================================================
+    // HISTORY BAR
+    // =====================================================
+
+    function renderHistory() {
+
+        // =========================
+        // HOPS HISTORY
+        // =========================
+
+        var hopHistory =
+            document.getElementById(
+                'dailyHistoryList'
+            );
+
+        if (hopHistory) {
+
+            hopHistory.innerHTML =
+
+                pondData.history
+                    .slice()
+                    .reverse()
+                    .slice(0, 20)
+
+                    .map(h => `
+
+                    <div class="history-item">
+
+                        <div>
+
+                            🌿 ${h.text}
+
+                            <small>
+                                ${h.fullDate}
+                            </small>
+
+                        </div>
+
+                        <button
+                            onclick="deleteLogItem('hop', ${h.id})"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+                `).join('');
         }
 
-        // =====================================================
-        // CHART
-        // =====================================================
+        // =========================
+        // TRACKER HISTORY
+        // =========================
+
+        var combined = [
+
+            ...pondData.moodLog.map(m => ({
+                ...m,
+                display:
+                    `${m.icon} ${m.val}`,
+                logType: 'mood'
+            })),
+
+            ...pondData.sugarLog.map(s => ({
+                ...s,
+                display:
+                    `🩸 ${s.val} mg/dL`,
+                logType: 'sugar'
+            })),
+
+            ...pondData.carbLog.map(c => ({
+                ...c,
+                display:
+                    `🥣 ${c.val}g carbs`,
+                logType: 'carb'
+            })),
+
+            ...pondData.insulinLog.map(i => ({
+                ...i,
+                display:
+                    `💉 ${i.val} units`,
+                logType: 'insulin'
+            })),
+
+            ...pondData.waterLog.map(w => ({
+                ...w,
+                display:
+                    `💧 Water #${w.val}`,
+                logType: 'water'
+            })),
+
+            ...pondData.stressLog.map(s => ({
+                ...s,
+                display:
+                    `🧠 Stress: ${s.val}`,
+                logType: 'stress'
+            })),
+
+            ...pondData.energyLog.map(e => ({
+                ...e,
+                display:
+                    `⚡ Energy: ${e.val}`,
+                logType: 'energy'
+            })),
+
+            ...pondData.symptomLog.map(sym => ({
+                ...sym,
+                display:
+                    `🩺 ${sym.symptom}`,
+                logType: 'symptom'
+            })),
+
+            ...pondData.exerciseLog.map(ex => ({
+                ...ex,
+                display:
+                    `🏃 ${ex.exerciseType} (${ex.duration}m)`,
+                logType: 'exercise'
+            }))
+
+        ].sort((a, b) => b.id - a.id);
+
+        var tracker =
+            document.getElementById(
+                'moodHistoryList'
+            );
+
+        if (tracker) {
+
+            tracker.innerHTML =
+
+                combined
+                    .slice(0, 40)
+
+                    .map(item => `
+
+                    <div class="history-item">
+
+                        <div>
+
+                            ${item.display}
+
+                            <small>
+                                ${item.fullDate}
+                            </small>
+
+                        </div>
+
+                        <button
+                            onclick="deleteLogItem('${item.logType}', ${item.id})"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+                `).join('');
+        }
+    }
+
+    // =====================================================
+    // CHART
+    // =====================================================
+
+    function renderChart() {
 
         var canvas =
-            document.getElementById('healthChart');
+            document.getElementById(
+                'healthChart'
+            );
 
-        if (canvas && typeof Chart !== 'undefined') {
+        if (!canvas || typeof Chart === 'undefined')
+            return;
 
-            var ctx = canvas.getContext('2d');
+        var ctx = canvas.getContext('2d');
 
-            var getTime = function (fd) {
+        var getTime = fd =>
 
-                return fd
-                    ? fd.split('@')[1].trim()
-                    : "00:00";
-            };
+            fd
+                ? fd.split('@')[1].trim()
+                : "00:00";
 
-            var allEntries = [
+        var allEntries = [
 
-                ...pondData.sugarLog,
-                ...pondData.moodLog,
-                ...pondData.carbLog,
-                ...pondData.waterLog,
-                ...pondData.insulinLog,
-                ...pondData.stressLog,
-                ...pondData.energyLog
+            ...pondData.sugarLog,
+            ...pondData.moodLog,
+            ...pondData.carbLog,
+            ...pondData.waterLog,
+            ...pondData.insulinLog,
+            ...pondData.stressLog,
+            ...pondData.energyLog
 
-            ].sort((a, b) => a.id - b.id);
+        ].sort((a, b) => a.id - b.id);
 
-            var labels =
-                [...new Set(
-                    allEntries.map(
-                        e => getTime(e.fullDate)
-                    )
-                )];
+        var labels = [
 
-            var datasets = [];
+            ...new Set(
+                allEntries.map(
+                    e => getTime(e.fullDate)
+                )
+            )
+        ];
 
-            // =========================
-            // GLUCOSE
-            // =========================
+        var datasets = [];
 
-            if (pondData.sugarLog.length > 0) {
+        // =========================
+        // GLUCOSE
+        // =========================
 
-                datasets.push({
+        if (pondData.sugarLog.length > 0) {
 
-                    label: 'Glucose',
+            datasets.push({
 
-                    data:
-                        pondData.sugarLog.map(s => ({
-                            x: getTime(s.fullDate),
-                            y: s.val
-                        })),
+                label: 'Glucose',
 
-                    borderColor: '#ef4444',
+                data:
+                    pondData.sugarLog.map(s => ({
+                        x: getTime(s.fullDate),
+                        y: s.val
+                    })),
 
-                    backgroundColor: '#ef4444',
+                borderColor: '#ef4444',
 
-                    tension: 0.3,
+                tension: 0.3,
 
-                    yAxisID: 'y'
-                });
-            }
+                yAxisID: 'y'
+            });
+        }
 
-            // =========================
-            // MOOD
-            // =========================
+        // =========================
+        // MOOD
+        // =========================
 
-            if (pondData.moodLog.length > 0) {
+        if (pondData.moodLog.length > 0) {
 
-                datasets.push({
+            datasets.push({
 
-                    label: 'Mood',
+                label: 'Mood',
 
-                    data:
-                        pondData.moodLog.map(m => ({
-                            x: getTime(m.fullDate),
-                            y: moodScores[m.val] || 5
-                        })),
+                data:
+                    pondData.moodLog.map(m => ({
+                        x: getTime(m.fullDate),
+                        y: moodScores[m.val] || 5
+                    })),
 
-                    borderColor: '#f59e0b',
+                borderColor: '#f59e0b',
 
-                    backgroundColor: '#f59e0b',
+                tension: 0.3,
 
-                    tension: 0.4,
+                yAxisID: 'yMood'
+            });
+        }
 
-                    yAxisID: 'yMood'
-                });
-            }
+        // =========================
+        // INSULIN
+        // =========================
 
-            // =========================
-            // WATER
-            // =========================
+        if (pondData.insulinLog.length > 0) {
 
-            if (pondData.waterLog.length > 0) {
+            datasets.push({
 
-                datasets.push({
+                label: 'Insulin',
 
-                    label: 'Water',
+                data:
+                    pondData.insulinLog.map(i => ({
+                        x: getTime(i.fullDate),
+                        y: i.val
+                    })),
 
-                    data:
-                        pondData.waterLog.map(w => ({
-                            x: getTime(w.fullDate),
-                            y: w.val
-                        })),
+                backgroundColor: '#8b5cf6',
 
-                    backgroundColor: '#00d4ff',
+                pointStyle: 'star',
 
-                    showLine: false,
+                showLine: false,
 
-                    pointStyle: 'triangle',
+                pointRadius: 10,
 
-                    pointRadius: 8,
+                yAxisID: 'y'
+            });
+        }
 
-                    yAxisID: 'y'
-                });
-            }
+        // =========================
+        // DESTROY OLD
+        // =========================
 
-            // =========================
-            // CARBS
-            // =========================
+        if (pondChart)
+            pondChart.destroy();
 
-            if (pondData.carbLog.length > 0) {
+        // =========================
+        // CREATE CHART
+        // =========================
 
-                datasets.push({
+        pondChart = new Chart(ctx, {
 
-                    label: 'Carbs',
+            type: 'line',
 
-                    data:
-                        pondData.carbLog.map(c => ({
-                            x: getTime(c.fullDate),
-                            y: c.val
-                        })),
+            data: {
+                datasets: datasets
+            },
 
-                    backgroundColor: '#10b981',
+            options: {
 
-                    showLine: false,
+                responsive: true,
 
-                    pointStyle: 'rect',
+                maintainAspectRatio: false,
 
-                    pointRadius: 8,
+                scales: {
 
-                    yAxisID: 'y'
-                });
-            }
-
-            // =========================
-            // INSULIN
-            // =========================
-
-            if (pondData.insulinLog.length > 0) {
-
-                datasets.push({
-
-                    label: 'Insulin',
-
-                    data:
-                        pondData.insulinLog.map(i => ({
-                            x: getTime(i.fullDate),
-                            y: i.val
-                        })),
-
-                    backgroundColor: '#8b5cf6',
-
-                    showLine: false,
-
-                    pointStyle: 'star',
-
-                    pointRadius: 10,
-
-                    yAxisID: 'y'
-                });
-            }
-
-            // =========================
-            // STRESS
-            // =========================
-
-            if (pondData.stressLog.length > 0) {
-
-                datasets.push({
-
-                    label: 'Stress',
-
-                    data:
-                        pondData.stressLog.map(s => ({
-                            x: getTime(s.fullDate),
-                            y: s.score
-                        })),
-
-                    borderColor: '#ff00aa',
-
-                    tension: 0.3,
-
-                    yAxisID: 'yMood'
-                });
-            }
-
-            // =========================
-            // ENERGY
-            // =========================
-
-            if (pondData.energyLog.length > 0) {
-
-                datasets.push({
-
-                    label: 'Energy',
-
-                    data:
-                        pondData.energyLog.map(e => ({
-                            x: getTime(e.fullDate),
-                            y: e.score
-                        })),
-
-                    borderColor: '#00ff99',
-
-                    tension: 0.3,
-
-                    yAxisID: 'yMood'
-                });
-            }
-
-            // =========================
-            // DESTROY OLD CHART
-            // =========================
-
-            if (pondChart)
-                pondChart.destroy();
-
-            // =========================
-            // CREATE CHART
-            // =========================
-
-            pondChart = new Chart(ctx, {
-
-                type: 'line',
-
-                data: {
-                    datasets: datasets
-                },
-
-                options: {
-
-                    responsive: true,
-
-                    maintainAspectRatio: false,
-
-                    interaction: {
-                        mode: 'nearest',
-                        intersect: false
+                    x: {
+                        type: 'category',
+                        labels: labels
                     },
 
-                    scales: {
+                    y: {
 
-                        x: {
-                            type: 'category',
-                            labels: labels
-                        },
+                        position: 'left',
 
-                        y: {
+                        min: 0,
 
-                            position: 'left',
-
-                            min: 0,
-
-                            max: 350,
-
-                            title: {
-                                display: true,
-                                text: 'Levels'
-                            }
-                        },
-
-                        yMood: {
-
-                            position: 'right',
-
-                            min: 1,
-
-                            max: 10,
-
-                            title: {
-                                display: true,
-                                text: 'Mood'
-                            },
-
-                            grid: {
-                                drawOnChartArea: false
-                            }
-                        }
+                        max: 350
                     },
 
-                    plugins: {
+                    yMood: {
 
-                        legend: {
+                        position: 'right',
 
-                            display: true,
+                        min: 1,
 
-                            labels: {
-                                boxWidth: 10,
-                                font: {
-                                    size: 10
-                                }
-                            }
-                        },
+                        max: 10,
 
-                        tooltip: {
-                            enabled: true
+                        grid: {
+                            drawOnChartArea: false
                         }
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
 })();
