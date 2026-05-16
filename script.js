@@ -398,57 +398,80 @@
         saveAndRefresh();
     }
 
-    function resetToday() {
-        if (!confirm("Clear today? This keeps your completed goal history.")) return;
+    /* =========================================================
+       CLEAR DAY
+       - Keeps ACTIVE goals in pondData.daily
+       - Clears completed goals/history
+       - Clears graph + tracker stats
+     ========================================================== */
+    function clearDayKeepGoals() {
+        if (!confirm("Clear today's logs and completed goals? Your active goal list will stay.")) return;
 
-        pondData.daily = [];
-        pondData.moodLog = [];
-        pondData.sugarLog = [];
-        pondData.carbLog = [];
-        pondData.waterLog = [];
-        pondData.insulinLog = [];
-        pondData.sleepLog = [];
-        pondData.stressLog = [];
-        pondData.energyLog = [];
-        pondData.symptomLog = [];
-        pondData.exerciseLog = [];
-        pondData.waterCount = 0;
+       // KEEP active goals
+       // pondData.daily stays untouched
 
-        resetTimePicker();
-        saveAndRefresh();
-    }
+       // Clear completed goals/history
+       pondData.history = [];
 
-    function clearEverything() {
-        if (!confirm("Reset ALL data? This deletes goals, history, and tracker logs.")) return;
+       // Clear health + tracker logs
+       pondData.moodLog = [];
+       pondData.sugarLog = [];
+       pondData.carbLog = [];
+       pondData.waterLog = [];
+       pondData.insulinLog = [];
+       pondData.sleepLog = [];
+       pondData.stressLog = [];
+       pondData.energyLog = [];
+       pondData.symptomLog = [];
+       pondData.exerciseLog = [];
 
-        localStorage.removeItem("ProgressPond_V25");
-        location.reload();
-    }
+       // Reset water UI
+       pondData.waterCount = 0;
 
-    window.deleteLogItem = function (type, id) {
-        if (!confirm("Delete entry?")) return;
+       resetTimePicker();
+       saveAndRefresh();
+   }
 
-        var map = {
-            mood: "moodLog",
-            sugar: "sugarLog",
-            carb: "carbLog",
-            insulin: "insulinLog",
-            water: "waterLog",
-            stress: "stressLog",
-            energy: "energyLog",
-            symptom: "symptomLog",
-            exercise: "exerciseLog",
-            hop: "history"
-        };
+   /* =========================================================
+      RESET DAY
+      - Clears EVERYTHING including active goals
+   ========================================================== */
+   function resetDayEverything() {
+       if (!confirm("Reset the entire day? This clears active goals, completed goals, and all tracker data.")) return;
 
-        if (map[type]) {
-            pondData[map[type]] = pondData[map[type]].filter(function (item) {
-                return item.id !== id;
-            });
-        }
+       // Clear goals
+       pondData.daily = [];
+       pondData.history = [];
 
-        saveAndRefresh();
-    };
+       // Clear all logs
+       pondData.moodLog = [];
+       pondData.sugarLog = [];
+       pondData.carbLog = [];
+       pondData.waterLog = [];
+       pondData.insulinLog = [];
+       pondData.sleepLog = [];
+       pondData.stressLog = [];
+       pondData.energyLog = [];
+       pondData.symptomLog = [];
+       pondData.exerciseLog = [];
+
+       // Reset water UI
+       pondData.waterCount = 0;
+
+       resetTimePicker();
+       saveAndRefresh();
+   }
+
+   /* =========================================================
+      FULL STORAGE WIPE
+      - Deletes ALL localStorage data
+   ========================================================== */
+   function clearEverything() {
+       if (!confirm("Delete ALL Progress Pond data permanently?")) return;
+
+       localStorage.removeItem("ProgressPond_V25");
+       location.reload();
+   }   
 
     function calculateStabilityScore() {
         var sortedSugar = sortByLoggedTime(pondData.sugarLog);
