@@ -114,8 +114,8 @@
         setClick("addSugarBtn", addSugar);
         setClick("addCarbBtn", addCarb);
         setClick("addInsulinBtn", addInsulin);
-        setClick("resetPondBtn", resetToday);
-        setClick("clearHistoryBtn", clearEverything);
+        setClick("resetPondBtn", clearDayKeepGoals);
+        setClick("clearHistoryBtn", resetDayEverything);
         setClick("clearWaterBtn", clearWater);
         setClick("resetTimeBtn", resetTimePicker);
         setClick("exportExcelBtn", exportGoalsToExcel);
