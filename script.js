@@ -1,5 +1,5 @@
 /* =========================================================
-   PROGRESS POND V25
+   PROGRESS POND V25 - UPDATED
 ========================================================== */
 
 (function () {
@@ -53,6 +53,12 @@
         Extreme: 10
     };
 
+    var sleepQualityScores = {
+        Bad: 3,
+        Good: 7,
+        Great: 10
+    };
+
     var moodEmojis = {
         Happy: "😊",
         Calm: "😌",
@@ -91,6 +97,10 @@
 
         try {
             Object.assign(pondData, JSON.parse(saved));
+
+            if (!pondData.sleepLog) pondData.sleepLog = [];
+            if (!pondData.daily) pondData.daily = [];
+            if (!pondData.history) pondData.history = [];
         } catch (e) {
             console.error("Load Error:", e);
         }
@@ -114,6 +124,7 @@
         setClick("addSugarBtn", addSugar);
         setClick("addCarbBtn", addCarb);
         setClick("addInsulinBtn", addInsulin);
+        setClick("addSleepBtn", addSleep);
         setClick("resetPondBtn", clearDayKeepGoals);
         setClick("clearHistoryBtn", resetDayEverything);
         setClick("clearWaterBtn", clearWater);
@@ -244,6 +255,8 @@
             exerciseType: payload.exerciseType,
             duration: payload.duration,
             intensity: payload.intensity,
+            sleepHours: payload.sleepHours,
+            sleepQuality: payload.sleepQuality,
             fullDate: payload.fullDate
         });
 
@@ -346,6 +359,57 @@
         input.value = "";
     }
 
+    function addSleep() {
+        var hoursInput = document.getElementById("sleepHoursInput");
+        var qualityInput = document.getElementById("sleepQualityInput");
+
+        var hours = hoursInput ? parseFloat(hoursInput.value) : 0;
+        var quality = qualityInput ? qualityInput.value : "";
+
+        if (!hours || hours <= 0) {
+            alert("Please enter how many hours you slept.");
+            return;
+        }
+
+        if (!quality) {
+            alert("Please choose sleep quality: Bad, Good, or Great.");
+            return;
+        }
+
+        addLog("sleepLog", {
+            type: "sleep",
+            val: hours,
+            sleepHours: hours,
+            sleepQuality: quality,
+            score: sleepQualityScores[quality] || 5,
+            fullDate: currentFullDate(getSelectedTime())
+        });
+
+        hoursInput.value = "";
+        if (qualityInput) qualityInput.value = "";
+    }
+
+    window.addSleepFromInput = function (quality) {
+        var hoursInput = document.getElementById("sleepHoursInput");
+        var hours = hoursInput ? parseFloat(hoursInput.value) : 0;
+
+        if (!hours || hours <= 0) {
+            alert("Please enter how many hours you slept.");
+            return;
+        }
+
+        addLog("sleepLog", {
+            type: "sleep",
+            val: hours,
+            sleepHours: hours,
+            sleepQuality: quality,
+            score: sleepQualityScores[quality] || 5,
+            fullDate: currentFullDate(getSelectedTime())
+        });
+
+        hoursInput.value = "";
+    };
+
     window.addStress = function (level) {
         addLog("stressLog", {
             type: "stress",
@@ -398,80 +462,83 @@
         saveAndRefresh();
     }
 
-    /* =========================================================
-       CLEAR DAY
-       - Keeps ACTIVE goals in pondData.daily
-       - Clears completed goals/history
-       - Clears graph + tracker stats
-     ========================================================== */
     function clearDayKeepGoals() {
         if (!confirm("Clear today's logs and completed goals? Your active goal list will stay.")) return;
 
-       // KEEP active goals
-       // pondData.daily stays untouched
+        pondData.history = [];
 
-       // Clear completed goals/history
-       pondData.history = [];
+        pondData.moodLog = [];
+        pondData.sugarLog = [];
+        pondData.carbLog = [];
+        pondData.waterLog = [];
+        pondData.insulinLog = [];
+        pondData.sleepLog = [];
+        pondData.stressLog = [];
+        pondData.energyLog = [];
+        pondData.symptomLog = [];
+        pondData.exerciseLog = [];
 
-       // Clear health + tracker logs
-       pondData.moodLog = [];
-       pondData.sugarLog = [];
-       pondData.carbLog = [];
-       pondData.waterLog = [];
-       pondData.insulinLog = [];
-       pondData.sleepLog = [];
-       pondData.stressLog = [];
-       pondData.energyLog = [];
-       pondData.symptomLog = [];
-       pondData.exerciseLog = [];
+        pondData.waterCount = 0;
 
-       // Reset water UI
-       pondData.waterCount = 0;
+        resetTimePicker();
+        saveAndRefresh();
+    }
 
-       resetTimePicker();
-       saveAndRefresh();
-   }
+    function resetDayEverything() {
+        if (!confirm("Reset the entire day? This clears active goals, completed goals, and all tracker data.")) return;
 
-   /* =========================================================
-      RESET DAY
-      - Clears EVERYTHING including active goals
-   ========================================================== */
-   function resetDayEverything() {
-       if (!confirm("Reset the entire day? This clears active goals, completed goals, and all tracker data.")) return;
+        pondData.daily = [];
+        pondData.history = [];
 
-       // Clear goals
-       pondData.daily = [];
-       pondData.history = [];
+        pondData.moodLog = [];
+        pondData.sugarLog = [];
+        pondData.carbLog = [];
+        pondData.waterLog = [];
+        pondData.insulinLog = [];
+        pondData.sleepLog = [];
+        pondData.stressLog = [];
+        pondData.energyLog = [];
+        pondData.symptomLog = [];
+        pondData.exerciseLog = [];
 
-       // Clear all logs
-       pondData.moodLog = [];
-       pondData.sugarLog = [];
-       pondData.carbLog = [];
-       pondData.waterLog = [];
-       pondData.insulinLog = [];
-       pondData.sleepLog = [];
-       pondData.stressLog = [];
-       pondData.energyLog = [];
-       pondData.symptomLog = [];
-       pondData.exerciseLog = [];
+        pondData.waterCount = 0;
 
-       // Reset water UI
-       pondData.waterCount = 0;
+        resetTimePicker();
+        saveAndRefresh();
+    }
 
-       resetTimePicker();
-       saveAndRefresh();
-   }
+    function clearEverything() {
+        if (!confirm("Delete ALL Progress Pond data permanently?")) return;
 
-   /* =========================================================
-      FULL STORAGE WIPE
-      - Deletes ALL localStorage data
-   ========================================================== */
-   function clearEverything() {
-       if (!confirm("Delete ALL Progress Pond data permanently?")) return;
+        localStorage.removeItem("ProgressPond_V25");
+        location.reload();
+    }
 
-       localStorage.removeItem("ProgressPond_V25");
-       location.reload();
-   }   
+    window.deleteLogItem = function (type, id) {
+        if (!confirm("Delete entry?")) return;
+
+        var map = {
+            mood: "moodLog",
+            sugar: "sugarLog",
+            carb: "carbLog",
+            insulin: "insulinLog",
+            sleep: "sleepLog",
+            water: "waterLog",
+            stress: "stressLog",
+            energy: "energyLog",
+            symptom: "symptomLog",
+            exercise: "exerciseLog",
+            hop: "history"
+        };
+
+        if (map[type]) {
+            pondData[map[type]] = pondData[map[type]].filter(function (item) {
+                return item.id !== id;
+            });
+        }
+
+        saveAndRefresh();
+    };
 
     function calculateStabilityScore() {
         var sortedSugar = sortByLoggedTime(pondData.sugarLog);
@@ -522,10 +589,13 @@
             { header: "Completed Goal", key: "goal", width: 50 },
             { header: "Goal Time", key: "goalTime", width: 24 },
             { header: "Symptom", key: "symptom", width: 30 },
-            { header: "Symptom Time", key: "symptomTime", width: 24 }
+            { header: "Symptom Time", key: "symptomTime", width: 24 },
+            { header: "Sleep Hours", key: "sleepHours", width: 18 },
+            { header: "Sleep Quality", key: "sleepQuality", width: 18 },
+            { header: "Sleep Time", key: "sleepTime", width: 24 }
         ];
 
-        worksheet.mergeCells("A1:D1");
+        worksheet.mergeCells("A1:G1");
         worksheet.getCell("A1").value = "Progress Pond Daily Report";
         worksheet.getCell("A1").font = { bold: true, size: 18 };
         worksheet.getCell("A1").alignment = { horizontal: "center" };
@@ -549,6 +619,7 @@
 
         worksheet.getCell("A" + currentRow).value = "Completed Goals";
         worksheet.getCell("C" + currentRow).value = "Symptoms Logged";
+        worksheet.getCell("E" + currentRow).value = "Sleep Logged";
         worksheet.getRow(currentRow).font = { bold: true, size: 14 };
 
         currentRow++;
@@ -557,14 +628,18 @@
         worksheet.getCell("B" + currentRow).value = "Completed Time";
         worksheet.getCell("C" + currentRow).value = "Symptom";
         worksheet.getCell("D" + currentRow).value = "Logged Time";
+        worksheet.getCell("E" + currentRow).value = "Sleep Hours";
+        worksheet.getCell("F" + currentRow).value = "Sleep Quality";
+        worksheet.getCell("G" + currentRow).value = "Sleep Time";
         worksheet.getRow(currentRow).font = { bold: true };
 
         currentRow++;
 
         var goals = pondData.history.slice().reverse();
         var symptoms = pondData.symptomLog.slice().reverse();
+        var sleep = pondData.sleepLog.slice().reverse();
 
-        var maxRows = Math.max(goals.length, symptoms.length, 1);
+        var maxRows = Math.max(goals.length, symptoms.length, sleep.length, 1);
 
         for (var i = 0; i < maxRows; i++) {
             if (goals[i]) {
@@ -577,9 +652,16 @@
                 worksheet.getCell("D" + currentRow).value = symptoms[i].fullDate;
             }
 
-            if (!goals[i] && !symptoms[i]) {
+            if (sleep[i]) {
+                worksheet.getCell("E" + currentRow).value = sleep[i].sleepHours || sleep[i].val;
+                worksheet.getCell("F" + currentRow).value = sleep[i].sleepQuality;
+                worksheet.getCell("G" + currentRow).value = sleep[i].fullDate;
+            }
+
+            if (!goals[i] && !symptoms[i] && !sleep[i]) {
                 worksheet.getCell("A" + currentRow).value = "No completed goals yet.";
                 worksheet.getCell("C" + currentRow).value = "No symptoms logged yet.";
+                worksheet.getCell("E" + currentRow).value = "No sleep logged yet.";
             }
 
             currentRow++;
@@ -755,6 +837,10 @@
             return "💉 " + i.val + " units";
         }, "insulin");
 
+        pushItems(pondData.sleepLog, function (sl) {
+            return "😴 Sleep: " + (sl.sleepHours || sl.val) + " hrs, " + sl.sleepQuality;
+        }, "sleep");
+
         pushItems(pondData.waterLog, function (w) {
             return "💧 Water #" + w.val;
         }, "water");
@@ -816,6 +902,7 @@
         var sortedCarbs = sortByLoggedTime(pondData.carbLog);
         var sortedWater = sortByLoggedTime(pondData.waterLog);
         var sortedInsulin = sortByLoggedTime(pondData.insulinLog);
+        var sortedSleep = sortByLoggedTime(pondData.sleepLog);
         var sortedStress = sortByLoggedTime(pondData.stressLog);
         var sortedEnergy = sortByLoggedTime(pondData.energyLog);
         var sortedExercise = sortByLoggedTime(pondData.exerciseLog);
@@ -826,6 +913,7 @@
             .concat(sortedCarbs)
             .concat(sortedWater)
             .concat(sortedInsulin)
+            .concat(sortedSleep)
             .concat(sortedStress)
             .concat(sortedEnergy)
             .concat(sortedExercise)
@@ -910,6 +998,34 @@
             });
         }
 
+        if (sortedSleep.length > 0) {
+            datasets.push({
+                label: "Sleep Hours",
+                data: sortedSleep.map(function (sl) {
+                    return { x: getTime(sl.fullDate), y: sl.sleepHours || sl.val };
+                }),
+                borderColor: "#6366f1",
+                backgroundColor: "#6366f1",
+                tension: 0.3,
+                pointStyle: "circle",
+                pointRadius: 7,
+                yAxisID: "ySleep"
+            });
+
+            datasets.push({
+                label: "Sleep Quality",
+                data: sortedSleep.map(function (sl) {
+                    return { x: getTime(sl.fullDate), y: sl.score || sleepQualityScores[sl.sleepQuality] || 5 };
+                }),
+                borderColor: "#a855f7",
+                backgroundColor: "#a855f7",
+                tension: 0.3,
+                pointStyle: "rectRounded",
+                pointRadius: 7,
+                yAxisID: "yMood"
+            });
+        }
+
         if (sortedStress.length > 0) {
             datasets.push({
                 label: "Stress",
@@ -985,7 +1101,7 @@
                         max: 10,
                         title: {
                             display: true,
-                            text: "Mood / Stress / Energy"
+                            text: "Mood / Stress / Energy / Sleep Quality"
                         },
                         grid: {
                             drawOnChartArea: false
@@ -998,6 +1114,18 @@
                         title: {
                             display: true,
                             text: "Exercise Minutes"
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    ySleep: {
+                        position: "right",
+                        min: 0,
+                        max: 16,
+                        title: {
+                            display: true,
+                            text: "Sleep Hours"
                         },
                         grid: {
                             drawOnChartArea: false
