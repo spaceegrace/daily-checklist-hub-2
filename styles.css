@@ -986,3 +986,17 @@ select:focus {
         flex: 1;
     }
 }
+
+.sleep-card {
+    border-color: var(--purple);
+    box-shadow:
+        6px 6px 0 #d8b4fe,
+        0 4px 18px var(--shadow);
+}
+
+.sleep-quality-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
