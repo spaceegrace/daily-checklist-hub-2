@@ -140,23 +140,14 @@
                 <div class="mood-options">
 
                     <button class="mood-btn" data-mood="Happy">😊</button>
-
                     <button class="mood-btn" data-mood="Calm">😌</button>
-
                     <button class="mood-btn" data-mood="Focused">🧐</button>
-
                     <button class="mood-btn" data-mood="Tired">😴</button>
-
                     <button class="mood-btn" data-mood="Grumpy">😠</button>
-
                     <button class="mood-btn" data-mood="Confused">😕</button>
-
                     <button class="mood-btn" data-mood="Angry">😡</button>
-
                     <button class="mood-btn" data-mood="Sad">😢</button>
-
                     <button class="mood-btn" data-mood="Crying">😭</button>
-
                     <button class="mood-btn" data-mood="Manic">🤪</button>
 
                 </div>
@@ -225,6 +216,53 @@
                         class="btn-pond"
                     >
                         Log Insulin
+                    </button>
+
+                </div>
+
+            </section>
+
+            <!-- ========================================= -->
+            <!-- SLEEP -->
+            <!-- ========================================= -->
+
+            <section class="pond-card sleep-card">
+
+                <h2>Sleep Tracker 😴</h2>
+
+                <div class="input-row">
+
+                    <input
+                        type="number"
+                        step="0.25"
+                        id="sleepHoursInput"
+                        placeholder="Hours slept"
+                        min="0"
+                    >
+
+                </div>
+
+                <div class="sleep-quality-row">
+
+                    <button
+                        onclick="addSleepFromInput('Bad')"
+                        class="mini-btn"
+                    >
+                        Bad 😵
+                    </button>
+
+                    <button
+                        onclick="addSleepFromInput('Good')"
+                        class="mini-btn"
+                    >
+                        Good 😌
+                    </button>
+
+                    <button
+                        onclick="addSleepFromInput('Great')"
+                        class="mini-btn"
+                    >
+                        Great ✨
                     </button>
 
                 </div>
@@ -634,7 +672,7 @@
 
             <div class="achieve-col">
 
-                <h4>Tracker History 🩸🧠</h4>
+                <h4>Tracker History 🩸🧠😴</h4>
 
                 <div
                     id="moodHistoryList"
@@ -655,8 +693,7 @@
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js");
     }
-        
-</script>
+    </script>
 
 </body>
 </html>
