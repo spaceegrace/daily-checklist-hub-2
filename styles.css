@@ -1003,11 +1003,11 @@ select:focus {
 
 .achievement-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 12px;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 700px) {
     .achievement-grid {
         grid-template-columns: 1fr;
     }
