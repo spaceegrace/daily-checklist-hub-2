@@ -781,114 +781,136 @@
             "%</div>";
     }
 
-    function renderHistory() {
-        var hopHistory = document.getElementById("dailyHistoryList");
+       function renderHistory() {
+       var hopHistory = document.getElementById("dailyHistoryList");
 
-        if (hopHistory) {
-            var hopHtml = "";
+       if (hopHistory) {
+           var hopHtml = "";
+   
+           pondData.history
+               .slice()
+               .reverse()
+               .slice(0, 40)
+               .forEach(function (h) {
+                   hopHtml +=
+                       '<div class="history-item">' +
+                       "<div>🌿 " +
+                       h.text +
+                       "<small>" +
+                       h.fullDate +
+                       "</small></div>" +
+                       '<button onclick="deleteLogItem(\'hop\', ' +
+                       h.id +
+                       ')">×</button>' +
+                       "</div>";
+               });   
 
-            pondData.history
-                .slice()
-                .reverse()
-                .slice(0, 40)
-                .forEach(function (h) {
-                    hopHtml +=
-                        '<div class="history-item">' +
-                        "<div>🌿 " +
-                        h.text +
-                        "<small>" +
-                        h.fullDate +
-                        "</small></div>" +
-                        '<button onclick="deleteLogItem(\'hop\', ' +
-                        h.id +
-                        ')">×</button>' +
-                        "</div>";
-                });
+           hopHistory.innerHTML = hopHtml || "No completed goals yet.";
+       }
 
-            hopHistory.innerHTML = hopHtml || "No completed goals yet.";
-        }
+       var combined = [];
 
-        var combined = [];
+       function pushItems(log, formatter, type) {
+           log.forEach(function (item) {
+               combined.push({
+                   id: item.id,
+                   fullDate: item.fullDate,
+                   display: formatter(item),
+                   logType: type
+               });
+           });
+       }
 
-        function pushItems(log, formatter, type) {
-            log.forEach(function (item) {
-                combined.push({
-                    id: item.id,
-                    fullDate: item.fullDate,
-                    display: formatter(item),
-                    logType: type
-                });
-            });
-        }
+       pushItems(pondData.moodLog, function (m) {
+           return (m.icon || "") + " " + m.val;
+       }, "mood");
 
-        pushItems(pondData.moodLog, function (m) {
-            return (m.icon || "") + " " + m.val;
-        }, "mood");
+       pushItems(pondData.sugarLog, function (s) {
+           return "🩸 " + s.val + " mg/dL";
+       }, "sugar");
 
-        pushItems(pondData.sugarLog, function (s) {
-            return "🩸 " + s.val + " mg/dL";
-        }, "sugar");
+       pushItems(pondData.carbLog, function (c) {
+           return "🥣 " + c.val + "g carbs";
+       }, "carb");
 
-        pushItems(pondData.carbLog, function (c) {
-            return "🥣 " + c.val + "g carbs";
-        }, "carb");
+       pushItems(pondData.insulinLog, function (i) {
+           return "💉 " + i.val + " units";
+       }, "insulin");
 
-        pushItems(pondData.insulinLog, function (i) {
-            return "💉 " + i.val + " units";
-        }, "insulin");
+       pushItems(pondData.sleepLog, function (sl) {
+           return "😴 Sleep: " + (sl.sleepHours || sl.val) + " hrs, " + sl.sleepQuality;
+       }, "sleep");
 
-        pushItems(pondData.sleepLog, function (sl) {
-            return "😴 Sleep: " + (sl.sleepHours || sl.val) + " hrs, " + sl.sleepQuality;
-        }, "sleep");
+       pushItems(pondData.waterLog, function (w) {
+           return "💧 Water #" + w.val;
+       }, "water");
 
-        pushItems(pondData.waterLog, function (w) {
-            return "💧 Water #" + w.val;
-        }, "water");
+       pushItems(pondData.stressLog, function (s) {
+           return "🧠 Stress: " + s.val;
+       }, "stress");
 
-        pushItems(pondData.stressLog, function (s) {
-            return "🧠 Stress: " + s.val;
-        }, "stress");
+       pushItems(pondData.energyLog, function (e) {
+           return "⚡ Energy: " + e.val;
+       }, "energy");
 
-        pushItems(pondData.energyLog, function (e) {
-            return "⚡ Energy: " + e.val;
-        }, "energy");
+       pushItems(pondData.exerciseLog, function (ex) {
+           return "🏃 " + ex.exerciseType + " (" + ex.duration + " min, " + ex.intensity + ")";
+       }, "exercise");
 
-        pushItems(pondData.symptomLog, function (sym) {
-            return "🩺 " + sym.symptom;
-        }, "symptom");
+       combined.sort(function (a, b) {
+           return b.id - a.id;
+       });
 
-        pushItems(pondData.exerciseLog, function (ex) {
-            return "🏃 " + ex.exerciseType + " (" + ex.duration + " min, " + ex.intensity + ")";
-        }, "exercise");
+       var tracker = document.getElementById("moodHistoryList");
 
-        combined.sort(function (a, b) {
-            return b.id - a.id;
-        });
+       if (tracker) {
+           var trackerHtml = "";
 
-        var tracker = document.getElementById("moodHistoryList");
+           combined.slice(0, 50).forEach(function (item) {
+               trackerHtml +=
+                   '<div class="history-item">' +
+                   "<div>" +
+                   item.display +
+                   "<small>" +
+                   item.fullDate +
+                   "</small></div>" +
+                   '<button onclick="deleteLogItem(\'' +
+                   item.logType +
+                   "', " +
+                   item.id +
+                   ')">×</button>' +
+                   "</div>";
+           });
 
-        if (tracker) {
-            var trackerHtml = "";
+           tracker.innerHTML = trackerHtml || "No stats logged yet.";
+       }
 
-            combined.slice(0, 50).forEach(function (item) {
-                trackerHtml +=
-                    '<div class="history-item">' +
-                    "<div>" +
-                    item.display +
-                    "<small>" +
-                    item.fullDate +
-                    "</small></div>" +
-                    '<button onclick="deleteLogItem(\'' +
-                    item.logType +
-                    "', " +
-                    item.id +
-                    ')">×</button>' +
-                    "</div>";
-            });
+       var symptomHistory = document.getElementById("symptomHistoryList");
 
-            tracker.innerHTML = trackerHtml || "No tracker history yet.";
-        }
-    }
+       if (symptomHistory) {
+           var symptomHtml = "";
+
+           pondData.symptomLog
+               .slice()
+               .reverse()
+               .slice(0, 50)
+               .forEach(function (sym) {
+                   symptomHtml +=
+                       '<div class="history-item">' +
+                       "<div>🩺 " +
+                       sym.symptom +
+                       "<small>" +
+                       sym.fullDate +
+                       "</small></div>" +
+                       '<button onclick="deleteLogItem(\'symptom\', ' +
+                       sym.id +
+                       ')">×</button>' +
+                       "</div>";
+               });
+
+           symptomHistory.innerHTML = symptomHtml || "No symptoms logged yet.";
+       }
+   }
 
     function renderChart() {
         var canvas = document.getElementById("healthChart");
